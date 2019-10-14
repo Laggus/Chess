@@ -23,6 +23,7 @@ namespace Chess.Classes.Pieces {
         public Image GetImage(Grid mainGrid, System.Windows.Thickness _thickness) => Piece.GetImage(mainGrid, _thickness, GetId());
         public Queen(PieceColor color) {
             this.Color = color;
+            this.Type = PieceType.Queen;
         }
 
         public List<Move.PieceMove> GetPossibleMoves(Board board, int _startX, int _startY) {

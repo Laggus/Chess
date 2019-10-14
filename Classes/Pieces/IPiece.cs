@@ -10,6 +10,7 @@ using System.Windows.Media.Imaging;
 
 namespace Chess.Classes.Pieces {
     enum PieceColor { Black, White }
+    enum PieceType { Bishop, King, Knight, Pawn, Queen, Rook}
     interface IPiece {
         void SetSquare(int x, int y);
 
@@ -18,6 +19,8 @@ namespace Chess.Classes.Pieces {
         int GetValueAlt();
 
         PieceColor GetColor();
+        PieceType GetPieceType();
+        bool GetHasMoved();
 
         Image GetImage(Grid mainGrid, Thickness _thickness);
 
@@ -70,6 +73,11 @@ namespace Chess.Classes.Pieces {
         protected PieceColor Color;
         public PieceColor GetColor() => Color;
 
+        protected PieceType Type;
+        public PieceType GetPieceType() => Type;
+
+        protected bool hasMoved = false;
+        public bool GetHasMoved() => hasMoved;
 
         public Square Square { get; set; }
 

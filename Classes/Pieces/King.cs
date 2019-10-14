@@ -26,6 +26,7 @@ namespace Chess.Classes.Pieces {
 
         public King(PieceColor color) {
             this.Color = color;
+            this.Type = PieceType.King;
         }
 
         public List<Move.PieceMove> GetPossibleMoves(Board board, int _startX, int _startY) {
@@ -39,6 +40,20 @@ namespace Chess.Classes.Pieces {
                                 possibleMoves.Add(Chess.Move.PieceMove.ConvertToMove(_startX, _startY, _startX + x, _startY + y));
                             }
                 }
+            }
+
+            // Check castling
+            int KingHeight = (GetColor() == PieceColor.White) ? 0 : 7;
+            if (!GetHasMoved())
+            {
+                if (board.GetSquare(0, KingHeight).Piece != null)
+                    if (!board.GetSquare(0, KingHeight).Piece.GetHasMoved())
+                        if (board.GetSquare(1, KingHeight).Piece == null && board.GetSquare(2, KingHeight).Piece == null && board.GetSquare(3, KingHeight).Piece == null)
+                            possibleMoves.Add(Chess.Move.PieceMove.ConvertToMove(_startX, _startY, 2, KingHeight));
+                if (board.GetSquare(7, KingHeight).Piece != null)
+                    if (!board.GetSquare(7, KingHeight).Piece.GetHasMoved())
+                        if (board.GetSquare(5, KingHeight).Piece == null && board.GetSquare(6, KingHeight).Piece == null)
+                            possibleMoves.Add(Chess.Move.PieceMove.ConvertToMove(_startX, _startY, 6, KingHeight));
             }
 
             return possibleMoves;

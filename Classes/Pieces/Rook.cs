@@ -82,6 +82,7 @@ namespace Chess.Classes.Pieces {
 
         public Rook(PieceColor color) {
             this.Color = color;
+            this.Type = PieceType.Rook;
         }
         public IPiece NewCopy() {
             return new Rook(Color);
