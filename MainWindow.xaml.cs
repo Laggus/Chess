@@ -30,7 +30,6 @@ namespace Chess {
         readonly List<Image> dots = new List<Image>();
         AI AI;
 
-
         SelectedPiece selectedPiece;
         //PieceColor currentTurn = PieceColor.White;
         //int turnNumber = 1;
@@ -177,10 +176,12 @@ namespace Chess {
                     List<Move.PieceMove> possibleMoves = board.GetPossibleMovesForPiece(selectedPiece.startX, selectedPiece.startY);
                     bool isIn = false;
                     foreach ( Move.PieceMove moveString in possibleMoves ) {
-                        if ( moveString.StartX == move.StartX ) isIn = true;
-                        if ( moveString.StartY == move.StartY ) isIn = true;
-                        if ( moveString.EndX == move.EndX ) isIn = true;
-                        if ( moveString.EndY == move.EndY ) isIn = true;
+                        isIn = true;
+                        if ( moveString.StartX != move.StartX ) isIn = false;
+                        else if ( moveString.StartY != move.StartY ) isIn = false;
+                        else if ( moveString.EndX != move.EndX ) isIn = false;
+                        else if ( moveString.EndY != move.EndY ) isIn = true;
+                        
                     }
                     if ( isIn ) {
                         board.MovePiece(move, board.Squares[selectedPiece.startX, selectedPiece.startY].Piece);
