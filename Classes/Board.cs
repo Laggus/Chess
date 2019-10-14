@@ -116,121 +116,28 @@ namespace Chess.Classes {
         }
 
         public void MovePiece(Move.PieceMove _move, IPiece _startChar) {
-            switch ( 4 ) {
-                /*
-                case 3:
-                    if (IsUpper(_startChar))
+            PieceType pieceType = _startChar.GetPieceType();
+            if (pieceType == PieceType.King)
+            {
+                // If castling
+                if (Math.Abs(_move.StartX - _move.EndX) > 1)
+                {
+                    // If Doing it aka not undoing it
+                    if (_move.StartX == 4)
                     {
-                        if (IsUpper(_startChar))
-                        {
-                            if (board.Squares[4, 0].type == Piece.WKing)
-                            {
-                                // Move king
-                                board.Squares[4, 0].type = Piece.Blank;
-                                board.Squares[6, 0].type = Piece.WKing;
-
-                                // Move rook 
-                                board.Squares[7, 0].type = Piece.Blank;
-                                board.Squares[5, 0].type = Piece.WRook;
-                            }
-                            else
-                            {
-                                // If reverse
-                                // Move king
-                                board.Squares[4, 0].type = Piece.WKing;
-                                board.Squares[6, 0].type = Piece.Blank;
-
-                                // Move rook 
-                                board.Squares[7, 0].type = Piece.WRook;
-                                board.Squares[5, 0].type = Piece.Blank;
-                            }
-                        }
-                        else
-                        {
-                            if (board.Squares[4, 7].type == Piece.BKing)
-                            {
-                                // Move king
-                                board.Squares[4, 7].type = Piece.Blank;
-                                board.Squares[6, 7].type = Piece.BKing;
-
-                                // Move rook 
-                                board.Squares[7, 7].type = Piece.Blank;
-                                board.Squares[5, 7].type = Piece.BRook;
-                            }
-                            else
-                            {
-                                // If reverse
-                                // Move king
-                                board.Squares[4, 7].type = Piece.BKing;
-                                board.Squares[6, 7].type = Piece.Blank;
-
-                                // Move rook 
-                                board.Squares[7, 7].type = Piece.BRook;
-                                board.Squares[5, 7].type = Piece.Blank;
-                            }
-                        }
-                    }
-                    break;
-                    */
-                case 4:
-
-                this.Squares[_move.EndX, _move.EndY].SetPiece(this.Squares[_move.StartX, _move.StartY].Piece);
-
-                //board.GetSquare(_move.startX, _move.startY).Piece.Move(_move.endX, _move.endY);
-                //board.Squares[_move.endX, _move.endY].Piece = board.Squares[_move.startX, _move.startY].Piece;
-                //board.Squares[_move.startX, _move.startY].Piece = null;
-                break;
-                /*
-                case 5:
-                    if (IsUpper(_startChar))
-                    {
-                        if (board.Squares[4, 0].type == Piece.WKing)
-                        {
-                            // Move king
-                            board.Squares[4, 0].type = Piece.Blank;
-                            board.Squares[2, 0].type = Piece.WKing;
-
-                            // Move rook 
-                            board.Squares[0, 0].type = Piece.Blank;
-                            board.Squares[3, 0].type = Piece.WRook;
-                        } else
-                        {
-                            // If reverse
-                            // Move king
-                            board.Squares[4, 0].type = Piece.WKing;
-                            board.Squares[2, 0].type = Piece.Blank;
-
-                            // Move rook 
-                            board.Squares[0, 0].type = Piece.WKing;
-                            board.Squares[3, 0].type = Piece.Blank;
-                        }
+                        //if (_move.EndX == 6) GetSquare(5, _move.StartY).SetPiece(GetSquare(7, _move.StartY).Piece);
+                        //if (_move.EndX == 2) GetSquare(3, _move.StartY).SetPiece(GetSquare(0, _move.StartY).Piece);
                     } else
                     {
-                        if (board.Squares[4, 7].type == Piece.BKing)
-                        {
-                            // Move king
-                            board.Squares[4, 7].type = Piece.Blank;
-                            board.Squares[2, 7].type = Piece.BKing;
-
-                            // Move rook 
-                            board.Squares[0, 7].type = Piece.Blank;
-                            board.Squares[3, 7].type = Piece.BRook;
-                        }
-                        else
-                        {
-                            // If reverse
-                            // Move king
-                            board.Squares[4, 7].type = Piece.BKing;
-                            board.Squares[2, 7].type = Piece.Blank;
-
-                            // Move rook 
-                            board.Squares[0, 7].type = Piece.BRook;
-                            board.Squares[3, 7].type = Piece.Blank;
-                        }
+                        //Board boardie = this.Clone();
+                        //if (_move.StartX == 6) GetSquare(7, _move.StartY).SetPiece(GetSquare(5, _move.StartY).Piece);
+                        //if (_move.StartX == 2) GetSquare(0, _move.StartY).SetPiece(GetSquare(3, _move.StartY).Piece);
                     }
-                    break;
-                    */
+                }
             }
+            //    GetSquare(_move.EndX, _move.EndY).SetPiece(GetPiece(_move));
+            this.Squares[_move.EndX, _move.EndY].SetPiece(this.Squares[_move.StartX, _move.StartY].Piece);
+                
         }
         public void MovePiece(Move.PieceMove move) {
             if(GetPiece(move) == null) {
