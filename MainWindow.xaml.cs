@@ -184,7 +184,7 @@ namespace Chess {
                         if (isIn) break;
                     }
                     if ( isIn ) {
-                        board.MovePiece(move, board.Squares[selectedPiece.startX, selectedPiece.startY].Piece);
+                        board.MovePiece(move);//, board.Squares[selectedPiece.startX, selectedPiece.startY].Piece);
                         selectedPiece = null;
                         UpdateVisualBoard();
                         board.SwitchTurn();
@@ -211,7 +211,7 @@ namespace Chess {
             //Console.WriteLine();
             Move aiMove = AI.GetBestMove();
             IPiece startChar = board.Squares[aiMove.move.StartX, aiMove.move.StartY].Piece;
-            board.MovePiece(aiMove.move, startChar);
+            board.MovePiece(aiMove.move);
             Application.Current.Dispatcher.Invoke(new Action(() => {
                 UpdateVisualBoard();
             }));

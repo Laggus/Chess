@@ -46,14 +46,14 @@ namespace Chess.Classes {
                 IPiece startChar = board.Squares[moves[i].StartX, moves[i].StartY].Piece;
                 IPiece endChar = board.Squares[moves[i].EndX, moves[i].EndY].Piece;
                 bool PriorMoveState = startChar.GetHasMoved();
-                board.MovePiece(moves[i], startChar);
+                board.MovePiece(moves[i]);
 
                 // Get score
                 double score = MiniMax(board, _depth - 1, !_isMax, _currentTurn == PieceColor.White ? PieceColor.Black : PieceColor.White, _doingHE, _a, _b).Value;
 
                 // Move back
                 Move.PieceMove moveString = new Move.PieceMove(moves[i].EndX, moves[i].EndY, moves[i].StartX, moves[i].StartY);
-                board.MovePiece(moveString, startChar);
+                board.MovePiece(moveString);
                 board.Squares[moves[i].EndX, moves[i].EndY].Piece = endChar;
                 startChar.SetHasMoved(PriorMoveState);
 
@@ -68,11 +68,12 @@ namespace Chess.Classes {
                     bestMove.Value = score;
                     bestMove.move = moves[i];
                 }
-
+                /*
                 // Alpha beta pruning
                 if (_isMax) _a = Math.Max(bestMove.Value, _a);
                 else _b = Math.Min(bestMove.Value, _b);
                 if (_a >= _b) break;
+                */
             }
             return bestMove;
         }
@@ -149,7 +150,7 @@ namespace Chess.Classes {
                 var boardClone = board.Clone();
                 IPiece startChar = boardClone.Squares[moves[i].StartX, moves[i].StartY].Piece;
                 IPiece endChar = boardClone.Squares[moves[i].EndX, moves[i].EndY].Piece;
-                boardClone.MovePiece(moves[i], startChar);
+                boardClone.MovePiece(moves[i]);
 
 
                 
@@ -213,7 +214,7 @@ namespace Chess.Classes {
 
         public AI(Board board, int movesAhead, int minimum, int maximum) {
             this.MainBoard = board;
-            this.MovesAhead = movesAhead;
+            this.MovesAhead = 1;// movesAhead;
             this.Minimum = minimum;
             this.Maximum = maximum;
         }

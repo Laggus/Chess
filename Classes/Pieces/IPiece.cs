@@ -9,9 +9,12 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
 namespace Chess.Classes.Pieces {
-    enum PieceColor { Black, White }
-    enum PieceType { Bishop, King, Knight, Pawn, Queen, Rook}
+    enum PieceColor { Black = 0x00, White = 0x10 }
+    enum PieceType { Bishop = 0x00, King = 0x01, Knight = 0x02, Pawn = 0x03, Queen = 0x04, Rook = 0x05 }
     interface IPiece {
+        byte GetData();
+
+
         void SetSquare(int x, int y);
 
         int GetValue(int x, int y);
@@ -56,6 +59,9 @@ namespace Chess.Classes.Pieces {
             return tmpImg;
         }
 
+        public byte GetData() {
+            return (byte)((byte)GetPieceType() | (byte)GetColor());
+        }
 
         /*
         private int x;
@@ -78,38 +84,24 @@ namespace Chess.Classes.Pieces {
 
         protected bool hasMoved = false;
         public bool GetHasMoved() => hasMoved;
-        public void SetHasMoved(bool _hasMoved)
-        {
+        public void SetHasMoved(bool _hasMoved) {
             hasMoved = _hasMoved;
         }
         public Square Square { get; set; }
 
 
         public void SetSquare(int x, int y) {
-            Square = Board.GetSquare(x,y);
+            Square = Board.GetSquare(x, y);
             Board.Squares[x, y].SetPiece((IPiece)this);
             Active = true;
-            //SetX(x);
-            //SetY(y);
         }
 
 
         public virtual int GetValue(int x, int y) => 0;
         public int GetValue(Square square) => GetValue(square.XPos, square.YPos);
         public int GetValue() => GetValue(Square);
-        public int GetValueAlt() => GetValue(7-Square.XPos, 7-Square.YPos);
+        public int GetValueAlt() => GetValue(7 - Square.XPos, 7 - Square.YPos);
 
-        
-        /*
-        protected void CopyToBoardBase(Board board, IPiece copy) {
-            copy.Square = board.GetSquare(this.Square.XPos, this.Square.YPos);
-            copy.Active = Active;
-            if( copy.Active )
-                copy.Square.Piece = copy;
-
-            board.ActivePieces.Add(copy);
-        }
-        */
 
     }
 

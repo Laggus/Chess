@@ -13,7 +13,7 @@ using static Chess.MainWindow;
 
 namespace Chess.Classes {
     class Board {
-        public object ThreadLock { get; set; } = new object(); 
+        public object ThreadLock { get; set; } = new object();
 
         public Square[,] Squares { get; set; } = new Square[8, 8];
 
@@ -93,20 +93,20 @@ namespace Chess.Classes {
             AddPiece(7, 7, new Rook(PieceColor.Black) { Board = this });
             AddPiece(1, 0, new Knight(PieceColor.White) { Board = this });
             AddPiece(6, 0, new Knight(PieceColor.White) { Board = this });
-            AddPiece(1, 7, new Knight(PieceColor.Black) { Board = this });
-            AddPiece(6, 7, new Knight(PieceColor.Black) { Board = this });
+            //AddPiece(1, 7, new Knight(PieceColor.Black) { Board = this });
+            //AddPiece(6, 7, new Knight(PieceColor.Black) { Board = this });
             AddPiece(2, 0, new Bishop(PieceColor.White) { Board = this });
             AddPiece(5, 0, new Bishop(PieceColor.White) { Board = this });
-            AddPiece(2, 7, new Bishop(PieceColor.Black) { Board = this });
-            AddPiece(5, 7, new Bishop(PieceColor.Black) { Board = this });
-            AddPiece(3, 0, new Queen(PieceColor.White) { Board = this });
+            //AddPiece(2, 7, new Bishop(PieceColor.Black) { Board = this });
+            //AddPiece(5, 7, new Bishop(PieceColor.Black) { Board = this });
+            //AddPiece(3, 0, new Queen(PieceColor.White) { Board = this });
             AddPiece(3, 7, new Queen(PieceColor.Black) { Board = this });
             AddPiece(4, 0, new King(PieceColor.White) { Board = this });
             AddPiece(4, 7, new King(PieceColor.Black) { Board = this });
 
             Draw(mainGrid, dots);
         }
-        public Board() {}
+        public Board() { }
 
         public bool CheckSquareLegality(bool _isUpper, int _targetX, int _targetY) {
             if ( Squares[_targetX, _targetY].Piece == null ) return true;
@@ -115,33 +115,34 @@ namespace Chess.Classes {
             return false;
         }
 
-        public void MovePiece(Move.PieceMove _move, IPiece _startChar) {
+        private void MovePiece(Move.PieceMove _move, IPiece _startChar) {
             _startChar.SetHasMoved(true);
             PieceType pieceType = _startChar.GetPieceType();
-            if (pieceType == PieceType.King)
-            {
+            if ( pieceType == PieceType.King ) {
                 // If castling
-                if (Math.Abs(_move.StartX - _move.EndX) > 1)
-                {
+                if ( Math.Abs(_move.StartX - _move.EndX) > 1 ) {
                     // If Doing it aka not undoing it
-                    if (_move.StartX == 4)
-                    {
-                        //if (_move.EndX == 6) GetSquare(5, _move.StartY).SetPiece(GetSquare(7, _move.StartY).Piece);
-                        //if (_move.EndX == 2) GetSquare(3, _move.StartY).SetPiece(GetSquare(0, _move.StartY).Piece);
-                    } else
-                    {
-                        //Board boardie = this.Clone();
-                        //if (_move.StartX == 6) GetSquare(7, _move.StartY).SetPiece(GetSquare(5, _move.StartY).Piece);
-                        //if (_move.StartX == 2) GetSquare(0, _move.StartY).SetPiece(GetSquare(3, _move.StartY).Piece);
+                    if ( _move.StartX == 4 ) {
+                        if ( _move.EndX == 6 ) MovePiece(new Move.PieceMove(7, _move.StartY, 5, _move.StartY));
+                        //GetSquare(5, _move.StartY).SetPiece(GetPiece(7, _move.StartY));
+                        if ( _move.EndX == 2 ) MovePiece(new Move.PieceMove(0, _move.StartY, 3, _move.StartY));
+                        //GetSquare(3, _move.StartY).SetPiece(GetPiece(0, _move.StartY));
+                    }
+                    else {
+                        if ( GetPiece(5, _move.StartY) == null )
+                            Console.WriteLine("Potatoes");
+                        if ( _move.StartX == 6 ) GetSquare(7, _move.StartY).SetPiece(GetPiece(5, _move.StartY));
+                        if ( _move.StartX == 2 ) GetSquare(0, _move.StartY).SetPiece(GetPiece(3, _move.StartY));
                     }
                 }
             }
             //    GetSquare(_move.EndX, _move.EndY).SetPiece(GetPiece(_move));
-            this.Squares[_move.EndX, _move.EndY].SetPiece(this.Squares[_move.StartX, _move.StartY].Piece);
-                
+            //this.Squares[_move.EndX, _move.EndY].SetPiece(this.Squares[_move.StartX, _move.StartY].Piece);
+            GetSquare(_move.EndX, _move.EndY).SetPiece(GetPiece(_move));
+
         }
         public void MovePiece(Move.PieceMove move) {
-            if(GetPiece(move) == null) {
+            if ( GetPiece(move) == null ) {
                 Console.WriteLine("Potatoes");
             }
             MovePiece(move, GetPiece(move.StartX, move.StartY));
@@ -215,11 +216,11 @@ namespace Chess.Classes {
                 }
             }
 
-            this.ActivePieces.ForEach( piece => {
+            this.ActivePieces.ForEach(piece => {
                 var copy = piece.NewCopy();
                 copy.Active = piece.Active;
                 copy.Square = boardClone.GetSquare(piece.Square);
-                if(copy.Active) boardClone.GetSquare(copy.Square).Piece = copy;
+                if ( copy.Active ) boardClone.GetSquare(copy.Square).Piece = copy;
                 boardClone.ActivePieces.Add(copy);
                 copy.Board = boardClone;
             });
@@ -227,6 +228,14 @@ namespace Chess.Classes {
 
             return boardClone;
         }
-
+        public override string ToString() {
+            string output = "";
+            for(int i=7;i>=0;i--) {
+                for(var j=0; j<8; j++)
+                    output += $"{Squares[j,i].ToString()},\t";
+                output += "\n";
+            }
+            return output;
+        }
     }
 }
