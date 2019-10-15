@@ -199,7 +199,10 @@ namespace Chess.Classes {
 
         public Move GetBestMove() {
 
+
             Board boardClone = MainBoard.Clone();
+            return MiniMax(boardClone, MovesAhead, true, boardClone.CurrentTurn, true, Minimum, Maximum);
+
             //boardClone.SwitchTurn();
 
             //return MiniMaxSynced(boardClone, MovesAhead, true, MainBoard.CurrentTurn, Minimum, Maximum);
@@ -210,28 +213,6 @@ namespace Chess.Classes {
             task.Wait();
             return task.Result;
 
-            //Move taskResult = task.Result;
-
-            //return taskResult;
-
-            
-            //return MiniMax(MainBoard, MovesAhead, true, MainBoard.CurrentTurn, false, Minimum, Maximum);
-
-            /*
-
-            return MiniMax(MainBoard, MovesAhead, true, MainBoard.CurrentTurn, false, Minimum, Maximum);
-            //return MiniMaxSeperateBoard(MainBoard, MovesAhead, true, Minimum, Maximum);
-            //return MiniMaxThreaded(MainBoard.Clone(), MovesAhead, true, Minimum, Maximum);
-
-
-            Board boardClone = MainBoard.Clone();
-            boardClone.SwitchTurn();
-
-            var task = MiniMaxTask(boardClone, MovesAhead, true, Minimum, Maximum);
-            task.Wait();
-
-            return task.Result;
-            */
         }
 
         public AI(Board board, int movesAhead, int minimum, int maximum) {
