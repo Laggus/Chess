@@ -236,7 +236,7 @@ namespace Chess.Classes {
 
         public AI(Board board, int movesAhead, int minimum, int maximum) {
             this.MainBoard = board;
-            this.MovesAhead = 4;// movesAhead;
+            this.MovesAhead = movesAhead;
             this.Minimum = minimum;
             this.Maximum = maximum;
         }
