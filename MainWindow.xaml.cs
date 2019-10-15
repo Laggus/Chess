@@ -216,8 +216,10 @@ namespace Chess {
                 UpdateVisualBoard();
             }));
             board.SwitchTurn();
-            if (board.GetAllPossibleMoves().Count == 0) OnGameOver();
-            if (!IsPlayerControlled[board.CurrentTurn == PieceColor.White ? 1 : 0])
+            
+            if (board.ThreefoldRep) OnGameOver();
+            else if (board.GetAllPossibleMoves().Count == 0) OnGameOver();
+            else if (!IsPlayerControlled[board.CurrentTurn == PieceColor.White ? 1 : 0])
                 BackgroundWork(sender, e);
             waitingForBackgroundWorker = false;
         }

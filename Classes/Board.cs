@@ -17,7 +17,9 @@ namespace Chess.Classes {
 
         public Square[,] Squares { get; set; } = new Square[8, 8];
 
-        public Dictionary<bool[][][,], int> BoardHistory = new Dictionary<bool[][][,], int>();
+        public Dictionary<string, int> BoardHistory = new Dictionary<string, int>();
+
+        public bool ThreefoldRep { get; set; } = false;
 
         public Square GetSquare(int x, int y) {
             return Squares[x, y];
@@ -39,11 +41,16 @@ namespace Chess.Classes {
             else
                 CurrentTurn = PieceColor.White;
             bool[][][,] boolArray = GetAsBoolArray();
-            if (!BoardHistory.ContainsKey(boolArray))
+            string boolString = GetAsBoolString(boolArray);
+            if (!BoardHistory.ContainsKey(boolString))
             {
-                BoardHistory.Add(boolArray, 1);
+                BoardHistory.Add(boolString, 1);
             }
-            else BoardHistory[boolArray]++;
+            else
+            {
+                BoardHistory[boolString]++;
+                if (BoardHistory[boolString] == 3) ThreefoldRep = true;
+            }
             TurnNumber++;
         }
 
@@ -310,26 +317,27 @@ namespace Chess.Classes {
 
             return BoolArray;
         }
-        /*
+        
         public string GetAsBoolString(bool[][][,] _BoolArray)
         {
             string boolString = "";
             for (int color = 0; color < 2; color++)
             {
-                for (int pieceType = 0; pieceType < 7; pieceType++)
+                for (int pieceType = 0; pieceType < 6; pieceType++)
                 {
                     for (int x = 0; x < 8; x++)
                     {
                         for (int y = 0; y < 8; y++)
                         {
-                            boolString += 
+                            boolString += _BoolArray[color][pieceType][x, y];
                         }
                     }
                 }
 
             }
+            return boolString;
         }
-        */
+        
 
         public override string ToString() {
             string output = "";
