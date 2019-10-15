@@ -84,9 +84,7 @@ namespace Chess.Classes.Pieces {
 
         protected bool hasMoved = false;
         public bool GetHasMoved() => hasMoved;
-        public void SetHasMoved(bool _hasMoved) {
-            hasMoved = _hasMoved;
-        }
+        public void SetHasMoved(bool _newValue) { hasMoved = _newValue; }
         public Square Square { get; set; }
 
 

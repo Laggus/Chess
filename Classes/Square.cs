@@ -16,8 +16,6 @@ namespace Chess.Classes {
         public IPiece Piece { get; set; }
 
         public void SetPiece(IPiece piece) {
-            Console.WriteLine();
-            Console.Write(piece.Board);
             if(this.Piece != null) { this.Piece.Active = false; }
             piece.Square.Piece = null;
             piece.Square = this;
