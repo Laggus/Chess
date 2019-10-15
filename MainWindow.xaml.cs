@@ -55,7 +55,7 @@ namespace Chess {
             if ( mainGrid.ActualWidth != 0 ) {
 
                 board = new Board(background, mainGrid, dots); ;
-                AI = new AI(board, 5, -1000000, 1000000);
+                AI = new AI(board, 2, -1000000, 1000000);
                 UpdateVisualBoard();
 
                 dispatcherTimer.Stop();
@@ -115,23 +115,7 @@ namespace Chess {
                                     };
                                     dots.Add(newDot);
                                     mainGrid.Children.Add(newDot);
-                                    switch ( 4 ) {
-                                        /*
-                                        case 3:
-                                        newDot.Margin = GetThicknessOfPos(6, (currentTurn ? 0 : 7));
-                                        break;
-                                        */
-
-                                        case 4:
-                                        newDot.Margin = GetThicknessOfPos(move.EndX, move.EndY);
-                                        break;
-                                        /*
-                                        case 5:
-                                        newDot.Margin = GetThicknessOfPos(2, (currentTurn ? 0 : 7));
-                                        break;
-                                        */
-                                    }
-
+                                    newDot.Margin = GetThicknessOfPos(move.EndX, move.EndY);
                                 }
                                 break;
                             }
@@ -188,7 +172,7 @@ namespace Chess {
                         }
                     }
                     if ( isIn ) {
-                        board.DoMove(move);//, board.Squares[selectedPiece.startX, selectedPiece.startY].Piece);
+                        board.DoMove(move, false);//, board.Squares[selectedPiece.startX, selectedPiece.startY].Piece);
                         selectedPiece = null;
                         UpdateVisualBoard();
                         board.SwitchTurn();
@@ -211,16 +195,36 @@ namespace Chess {
         }
 
         void BackgroundWork(object sender, DoWorkEventArgs e) {
-            //foreach ( Move.PieceMove move in board.GetAllPossibleMoves(board.CurrentTurn) ) Console.WriteLine(move);
-            //Console.WriteLine();
             Move aiMove = AI.GetBestMove();
+            if (aiMove.move == null)
+            {
+                OnGameOver();
+                waitingForBackgroundWorker = false;
+                return;
+            }
             IPiece startChar = board.Squares[aiMove.move.StartX, aiMove.move.StartY].Piece;
-            board.DoMove(aiMove.move);
+            board.DoMove(aiMove.move, false);
             Application.Current.Dispatcher.Invoke(new Action(() => {
                 UpdateVisualBoard();
             }));
             board.SwitchTurn();
+            if (board.GetAllPossibleMoves().Count == 0) OnGameOver();
             waitingForBackgroundWorker = false;
+        }
+
+        public void OnGameOver()
+        {
+            Application.Current.Dispatcher.Invoke(new Action(() => {
+                Canvas canvas = background;
+                mainGrid.Children.Clear();
+                mainGrid.Children.Add(canvas);
+                //foreach (System.Windows.UIElement dd in mainGrid.Children) if (dd != background)mainGrid.Children.Remove(dd);
+                selectedPiece = null;
+                board.ClearBoard();
+                board = new Board(background, mainGrid, dots);
+                AI = new AI(board, 2, -1000000, 1000000);
+                UpdateVisualBoard();
+            }));
         }
 
         private void MainGrid_SizeChanged(object sender, SizeChangedEventArgs e) {

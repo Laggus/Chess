@@ -40,25 +40,29 @@ namespace Chess.Classes {
                 return bestMove;
             }
             var moves = board.GetAllPossibleMoves(_currentTurn);
-
             for (int i = 0; i < moves.Count; i++)
             {
                 double score;
                 if (!moves[i].IsCastling)
                 {
+                    bool[] OldKingStates = (bool[])board.ActiveKings.Clone();
+                    if (board.GetPiece(moves[i].EndX, moves[i].EndY) != null && board.GetPiece(moves[i].EndX, moves[i].EndY).GetPieceType() == PieceType.King)
+                    {
+                        board.ActiveKings[(board.GetPiece(moves[i].EndX, moves[i].EndY).GetColor() == PieceColor.White) ? 1 : 0] = false;
+                    }
                     IPiece startChar = board.Squares[moves[i].StartX, moves[i].StartY].Piece;
                     IPiece endChar = board.Squares[moves[i].EndX, moves[i].EndY].Piece;
                     bool PriorMoveState = startChar.GetHasMoved();
-                    board.MovePiece(moves[i]);
-
+                    board.DoMove(moves[i], false);
                     // Get score
                     score = MiniMax(board, _depth - 1, !_isMax, _currentTurn == PieceColor.White ? PieceColor.Black : PieceColor.White, _doingHE, _a, _b).Value;
 
                     // Move back
-                    Move.PieceMove moveString = new Move.PieceMove(moves[i].EndX, moves[i].EndY, moves[i].StartX, moves[i].StartY);
-                    board.MovePiece(moveString);
+                    //Move.PieceMove moveString = new Move.PieceMove(moves[i].EndX, moves[i].EndY, moves[i].StartX, moves[i].StartY);
+                    board.DoMove(moves[i], true);
                     board.Squares[moves[i].EndX, moves[i].EndY].Piece = endChar;
                     startChar.SetHasMoved(PriorMoveState);
+                    board.ActiveKings = OldKingStates;
                 } else
                 {
                     board.Castle(moves[i]);
@@ -77,12 +81,12 @@ namespace Chess.Classes {
                     bestMove.Value = score;
                     bestMove.move = moves[i];
                 }
-                /*
+                
                 // Alpha beta pruning
                 if (_isMax) _a = Math.Max(bestMove.Value, _a);
                 else _b = Math.Min(bestMove.Value, _b);
                 if (_a >= _b) break;
-                */
+                
             }
             return bestMove;
         }
@@ -223,7 +227,7 @@ namespace Chess.Classes {
 
         public AI(Board board, int movesAhead, int minimum, int maximum) {
             this.MainBoard = board;
-            this.MovesAhead = 1;// movesAhead;
+            this.MovesAhead = movesAhead;// movesAhead;
             this.Minimum = minimum;
             this.Maximum = maximum;
         }
