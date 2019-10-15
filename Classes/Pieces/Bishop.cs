@@ -24,7 +24,6 @@ namespace Chess.Classes.Pieces {
         public string GetId() => $"bishop_{Color}";
         public Image GetImage(Grid mainGrid, Thickness _thickness) => Piece.GetImage(mainGrid, _thickness, GetId());
 
-
         public Bishop(PieceColor color) {
             this.Color = color;
             this.Type = PieceType.Bishop;

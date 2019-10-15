@@ -93,13 +93,13 @@ namespace Chess.Classes {
             AddPiece(7, 7, new Rook(PieceColor.Black) { Board = this });
             AddPiece(1, 0, new Knight(PieceColor.White) { Board = this });
             AddPiece(6, 0, new Knight(PieceColor.White) { Board = this });
-            //AddPiece(1, 7, new Knight(PieceColor.Black) { Board = this });
-            //AddPiece(6, 7, new Knight(PieceColor.Black) { Board = this });
+            AddPiece(1, 7, new Knight(PieceColor.Black) { Board = this });
+            AddPiece(6, 7, new Knight(PieceColor.Black) { Board = this });
             AddPiece(2, 0, new Bishop(PieceColor.White) { Board = this });
             AddPiece(5, 0, new Bishop(PieceColor.White) { Board = this });
-            //AddPiece(2, 7, new Bishop(PieceColor.Black) { Board = this });
-            //AddPiece(5, 7, new Bishop(PieceColor.Black) { Board = this });
-            //AddPiece(3, 0, new Queen(PieceColor.White) { Board = this });
+            AddPiece(2, 7, new Bishop(PieceColor.Black) { Board = this });
+            AddPiece(5, 7, new Bishop(PieceColor.Black) { Board = this });
+            AddPiece(3, 0, new Queen(PieceColor.White) { Board = this });
             AddPiece(3, 7, new Queen(PieceColor.Black) { Board = this });
             AddPiece(4, 0, new King(PieceColor.White) { Board = this });
             AddPiece(4, 7, new King(PieceColor.Black) { Board = this });
@@ -117,7 +117,8 @@ namespace Chess.Classes {
 
         private void MovePiece(Move.PieceMove _move, IPiece _startChar) {
             _startChar.SetHasMoved(true);
-            PieceType pieceType = _startChar.GetPieceType();
+            //PieceType pieceType = _startChar.GetPieceType();
+            /*
             if ( pieceType == PieceType.King ) {
                 // If castling
                 if ( Math.Abs(_move.StartX - _move.EndX) > 1 ) {
@@ -136,6 +137,7 @@ namespace Chess.Classes {
                     }
                 }
             }
+            */
             //    GetSquare(_move.EndX, _move.EndY).SetPiece(GetPiece(_move));
             //this.Squares[_move.EndX, _move.EndY].SetPiece(this.Squares[_move.StartX, _move.StartY].Piece);
             GetSquare(_move.EndX, _move.EndY).SetPiece(GetPiece(_move));
@@ -151,6 +153,40 @@ namespace Chess.Classes {
             MovePiece(new Move.PieceMove(move.EndX, move.EndY, move.StartX, move.StartY));
         }
 
+        public void Castle(Move.PieceMove _move)
+        {
+            if (_move.EndX == 6)
+            {
+                MovePiece(new Move.PieceMove(7, _move.StartY, 5, _move.StartY));
+                MovePiece(_move);
+            }
+            if (_move.EndX == 2)
+            {
+                MovePiece(new Move.PieceMove(0, _move.StartY, 3, _move.StartY));
+                MovePiece(_move);
+            }
+        }
+        public void UndoCastle(Move.PieceMove _move)
+        {
+            if (_move.EndX == 6)
+            {
+                MovePieceReverse(new Move.PieceMove(7, _move.StartY, 5, _move.StartY));
+                MovePieceReverse(_move);
+            }
+            if (_move.EndX == 2)
+            {
+                MovePieceReverse(new Move.PieceMove(0, _move.StartY, 3, _move.StartY));
+                MovePieceReverse(_move);
+            }
+            GetPiece(_move.StartX, _move.StartY).SetHasMoved(false);
+            GetPiece((_move.EndX == 6) ? 7 : 0, _move.StartY).SetHasMoved(false);
+        }
+        
+        public void DoMove(Move.PieceMove _move)
+        {
+            if (!_move.IsCastling) MovePiece(_move);
+            else Castle(_move);
+        }
 
         public List<Move.PieceMove> GetPossibleMovesForPiece(int _startX, int _startY) {
             return GetSquare(_startX, _startY).Piece.GetPossibleMoves(this, _startX, _startY);

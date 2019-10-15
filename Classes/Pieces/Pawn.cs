@@ -26,6 +26,7 @@ namespace Chess.Classes.Pieces {
 
         public Image GetImage(Grid mainGrid, System.Windows.Thickness _thickness) => Piece.GetImage(mainGrid, _thickness, GetId());
 
+ 
         public Pawn(PieceColor color) {
             this.Color = color;
             this.Type = PieceType.Pawn;

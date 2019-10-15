@@ -181,10 +181,14 @@ namespace Chess {
                         else if ( moveString.StartY != move.StartY ) isIn = false;
                         else if ( moveString.EndX != move.EndX ) isIn = false;
                         else if ( moveString.EndY != move.EndY ) isIn = false;
-                        if (isIn) break;
+                        if (isIn)
+                        {
+                            move = moveString;
+                            break;
+                        }
                     }
                     if ( isIn ) {
-                        board.MovePiece(move);//, board.Squares[selectedPiece.startX, selectedPiece.startY].Piece);
+                        board.DoMove(move);//, board.Squares[selectedPiece.startX, selectedPiece.startY].Piece);
                         selectedPiece = null;
                         UpdateVisualBoard();
                         board.SwitchTurn();
@@ -211,7 +215,7 @@ namespace Chess {
             //Console.WriteLine();
             Move aiMove = AI.GetBestMove();
             IPiece startChar = board.Squares[aiMove.move.StartX, aiMove.move.StartY].Piece;
-            board.MovePiece(aiMove.move);
+            board.DoMove(aiMove.move);
             Application.Current.Dispatcher.Invoke(new Action(() => {
                 UpdateVisualBoard();
             }));

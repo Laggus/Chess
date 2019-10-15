@@ -23,7 +23,6 @@ namespace Chess.Classes.Pieces {
         public string GetId() => $"knight_{Color}";
 
         public Image GetImage(Grid mainGrid, System.Windows.Thickness _thickness) => Piece.GetImage(mainGrid, _thickness, GetId());
-
         public Knight(PieceColor color) {
             this.Color = color;
             this.Type = PieceType.Knight;

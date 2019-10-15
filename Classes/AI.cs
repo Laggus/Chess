@@ -43,19 +43,28 @@ namespace Chess.Classes {
 
             for (int i = 0; i < moves.Count; i++)
             {
-                IPiece startChar = board.Squares[moves[i].StartX, moves[i].StartY].Piece;
-                IPiece endChar = board.Squares[moves[i].EndX, moves[i].EndY].Piece;
-                bool PriorMoveState = startChar.GetHasMoved();
-                board.MovePiece(moves[i]);
+                double score;
+                if (!moves[i].IsCastling)
+                {
+                    IPiece startChar = board.Squares[moves[i].StartX, moves[i].StartY].Piece;
+                    IPiece endChar = board.Squares[moves[i].EndX, moves[i].EndY].Piece;
+                    bool PriorMoveState = startChar.GetHasMoved();
+                    board.MovePiece(moves[i]);
 
-                // Get score
-                double score = MiniMax(board, _depth - 1, !_isMax, _currentTurn == PieceColor.White ? PieceColor.Black : PieceColor.White, _doingHE, _a, _b).Value;
+                    // Get score
+                    score = MiniMax(board, _depth - 1, !_isMax, _currentTurn == PieceColor.White ? PieceColor.Black : PieceColor.White, _doingHE, _a, _b).Value;
 
-                // Move back
-                Move.PieceMove moveString = new Move.PieceMove(moves[i].EndX, moves[i].EndY, moves[i].StartX, moves[i].StartY);
-                board.MovePiece(moveString);
-                board.Squares[moves[i].EndX, moves[i].EndY].Piece = endChar;
-                startChar.SetHasMoved(PriorMoveState);
+                    // Move back
+                    Move.PieceMove moveString = new Move.PieceMove(moves[i].EndX, moves[i].EndY, moves[i].StartX, moves[i].StartY);
+                    board.MovePiece(moveString);
+                    board.Squares[moves[i].EndX, moves[i].EndY].Piece = endChar;
+                    startChar.SetHasMoved(PriorMoveState);
+                } else
+                {
+                    board.Castle(moves[i]);
+                    score = MiniMax(board, _depth - 1, !_isMax, _currentTurn == PieceColor.White ? PieceColor.Black : PieceColor.White, _doingHE, _a, _b).Value;
+                    board.UndoCastle(moves[i]);
+                }
 
                 // See if better move
                 if (_isMax && score > bestMove.Value)
