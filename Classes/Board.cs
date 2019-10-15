@@ -17,6 +17,8 @@ namespace Chess.Classes {
 
         public Square[,] Squares { get; set; } = new Square[8, 8];
 
+        public Dictionary<bool[][][,], int> BoardHistory = new Dictionary<bool[][][,], int>();
+
         public Square GetSquare(int x, int y) {
             return Squares[x, y];
         }
@@ -36,7 +38,12 @@ namespace Chess.Classes {
                 CurrentTurn = PieceColor.Black;
             else
                 CurrentTurn = PieceColor.White;
-
+            bool[][][,] boolArray = GetAsBoolArray();
+            if (!BoardHistory.ContainsKey(boolArray))
+            {
+                BoardHistory.Add(boolArray, 1);
+            }
+            else BoardHistory[boolArray]++;
             TurnNumber++;
         }
 
@@ -262,6 +269,52 @@ namespace Chess.Classes {
 
             return boardClone;
         }
+
+        public bool[][][,] GetAsBoolArray()
+        {
+            bool[][][,] BoolArray = new bool[2][][,];
+            for (int i = 0; i < 2; i++)
+            {
+                BoolArray[i] = new bool[6][,];
+                for (int i2 = 0; i2 < 6; i2++)
+                {
+                    BoolArray[i][i2] = new bool[8, 8];
+                    
+                }
+            }
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    IPiece piece = GetPiece(x, y);
+                    if (piece != null)
+                        BoolArray[piece.GetColor() == PieceColor.White ? 1 : 0][(int)piece.GetPieceType()][x, y] = true;
+                }
+            }
+
+            return BoolArray;
+        }
+        /*
+        public string GetAsBoolString(bool[][][,] _BoolArray)
+        {
+            string boolString = "";
+            for (int color = 0; color < 2; color++)
+            {
+                for (int pieceType = 0; pieceType < 7; pieceType++)
+                {
+                    for (int x = 0; x < 8; x++)
+                    {
+                        for (int y = 0; y < 8; y++)
+                        {
+                            boolString += 
+                        }
+                    }
+                }
+
+            }
+        }
+        */
+
         public override string ToString() {
             string output = "";
             for(int i=7;i>=0;i--) {
