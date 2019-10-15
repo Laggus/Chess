@@ -21,7 +21,7 @@ namespace Chess.Classes.Pieces {
         PieceColor GetColor();
         PieceType GetPieceType();
         bool GetHasMoved();
-
+        void SetHasMoved(bool _hasMoved);
         Image GetImage(Grid mainGrid, Thickness _thickness);
 
         //string GetId();
@@ -78,7 +78,10 @@ namespace Chess.Classes.Pieces {
 
         protected bool hasMoved = false;
         public bool GetHasMoved() => hasMoved;
-
+        public void SetHasMoved(bool _hasMoved)
+        {
+            hasMoved = _hasMoved;
+        }
         public Square Square { get; set; }
 
 
