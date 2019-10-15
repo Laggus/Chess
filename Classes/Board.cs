@@ -83,23 +83,23 @@ namespace Chess.Classes {
             }
 
             for ( int i = 0; i < 8; i++ ) {
-                //AddPiece(i, 1, new Pawn(PieceColor.White) { Board = this });
-                //AddPiece(i, 6, new Pawn(PieceColor.Black) { Board = this });
+                AddPiece(i, 1, new Pawn(PieceColor.White) { Board = this });
+                AddPiece(i, 6, new Pawn(PieceColor.Black) { Board = this });
             }
 
-            //AddPiece(0, 0, new Rook(PieceColor.White) { Board = this });
-            //AddPiece(7, 0, new Rook(PieceColor.White) { Board = this });
+            AddPiece(0, 0, new Rook(PieceColor.White) { Board = this });
+            AddPiece(7, 0, new Rook(PieceColor.White) { Board = this });
             AddPiece(0, 7, new Rook(PieceColor.Black) { Board = this });
             AddPiece(7, 7, new Rook(PieceColor.Black) { Board = this });
-            //AddPiece(1, 0, new Knight(PieceColor.White) { Board = this });
-            //AddPiece(6, 0, new Knight(PieceColor.White) { Board = this });
-            //AddPiece(1, 7, new Knight(PieceColor.Black) { Board = this });
-            //AddPiece(6, 7, new Knight(PieceColor.Black) { Board = this });
-            //AddPiece(2, 0, new Bishop(PieceColor.White) { Board = this });
-            //AddPiece(5, 0, new Bishop(PieceColor.White) { Board = this });
-            //AddPiece(2, 7, new Bishop(PieceColor.Black) { Board = this });
-            //AddPiece(5, 7, new Bishop(PieceColor.Black) { Board = this });
-            //AddPiece(3, 0, new Queen(PieceColor.White) { Board = this });
+            AddPiece(1, 0, new Knight(PieceColor.White) { Board = this });
+            AddPiece(6, 0, new Knight(PieceColor.White) { Board = this });
+            AddPiece(1, 7, new Knight(PieceColor.Black) { Board = this });
+            AddPiece(6, 7, new Knight(PieceColor.Black) { Board = this });
+            AddPiece(2, 0, new Bishop(PieceColor.White) { Board = this });
+            AddPiece(5, 0, new Bishop(PieceColor.White) { Board = this });
+            AddPiece(2, 7, new Bishop(PieceColor.Black) { Board = this });
+            AddPiece(5, 7, new Bishop(PieceColor.Black) { Board = this });
+            AddPiece(3, 0, new Queen(PieceColor.White) { Board = this });
             AddPiece(3, 7, new Queen(PieceColor.Black) { Board = this });
             AddPiece(4, 0, new King(PieceColor.White) { Board = this });
             AddPiece(4, 7, new King(PieceColor.Black) { Board = this });

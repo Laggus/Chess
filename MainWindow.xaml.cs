@@ -26,6 +26,10 @@ namespace Chess {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
+        readonly bool[] IsPlayerControlled = new bool[2] { false, false };
+
+        readonly int MinimaxDepth = 4;
+
         Board board;
         readonly List<Image> dots = new List<Image>();
         AI AI;
@@ -55,10 +59,13 @@ namespace Chess {
             if ( mainGrid.ActualWidth != 0 ) {
 
                 board = new Board(background, mainGrid, dots); ;
-                AI = new AI(board, 2, -1000000, 1000000);
+                AI = new AI(board, MinimaxDepth, -1000000, 1000000);
                 UpdateVisualBoard();
 
                 dispatcherTimer.Stop();
+                if (!IsPlayerControlled[board.CurrentTurn == PieceColor.White ? 1 : 0])
+                    StartBackgroundWorker();
+
             }
         }
 
@@ -176,7 +183,8 @@ namespace Chess {
                         selectedPiece = null;
                         UpdateVisualBoard();
                         board.SwitchTurn();
-                        StartBackgroundWorker();
+                        if (!IsPlayerControlled[board.CurrentTurn == PieceColor.White ? 1 : 0]) 
+                            StartBackgroundWorker();
                     }
                     else {
                         selectedPiece = null;
@@ -209,6 +217,8 @@ namespace Chess {
             }));
             board.SwitchTurn();
             if (board.GetAllPossibleMoves().Count == 0) OnGameOver();
+            if (!IsPlayerControlled[board.CurrentTurn == PieceColor.White ? 1 : 0])
+                BackgroundWork(sender, e);
             waitingForBackgroundWorker = false;
         }
 
@@ -222,8 +232,10 @@ namespace Chess {
                 selectedPiece = null;
                 board.ClearBoard();
                 board = new Board(background, mainGrid, dots);
-                AI = new AI(board, 2, -1000000, 1000000);
+                AI = new AI(board, MinimaxDepth, -1000000, 1000000);
                 UpdateVisualBoard();
+                if (!IsPlayerControlled[board.CurrentTurn == PieceColor.White ? 1 : 0])
+                    StartBackgroundWorker();
             }));
         }
 
