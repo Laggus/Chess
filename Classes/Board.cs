@@ -115,6 +115,22 @@ namespace Chess.Classes {
             return false;
         }
 
+        public void MovePiece(int xStart, int yStart, int xEnd, int yEnd) {
+            var piece = GetPiece(xStart, yStart);
+            piece.SetHasMoved(true);
+
+            var startSquare = GetSquare(xStart, yStart);
+            var endSquare = GetSquare(xEnd, yEnd);
+
+            if(endSquare.Piece != null) {
+                endSquare.Piece.Square = null;
+                endSquare.Piece.Active = false;
+            }
+
+            startSquare.SetPiece(null);
+            endSquare.SetPiece(piece);
+        }
+
         private void MovePiece(Move.PieceMove _move, IPiece _startChar) {
             _startChar.SetHasMoved(true);
             PieceType pieceType = _startChar.GetPieceType();
