@@ -116,6 +116,7 @@ namespace Chess.Classes {
         }
 
         public void MovePiece(Move.PieceMove _move, IPiece _startChar) {
+            _startChar.SetHasMoved(true);
             PieceType pieceType = _startChar.GetPieceType();
             if (pieceType == PieceType.King)
             {

@@ -45,21 +45,17 @@ namespace Chess.Classes {
             {
                 IPiece startChar = board.Squares[moves[i].StartX, moves[i].StartY].Piece;
                 IPiece endChar = board.Squares[moves[i].EndX, moves[i].EndY].Piece;
+                bool PriorMoveState = startChar.GetHasMoved();
                 board.MovePiece(moves[i], startChar);
 
                 // Get score
                 double score = MiniMax(board, _depth - 1, !_isMax, _currentTurn == PieceColor.White ? PieceColor.Black : PieceColor.White, _doingHE, _a, _b).Value;
 
                 // Move back
-                //if ( moves[i].Length == 4) {
-                if (true)
-                {
-                    Move.PieceMove moveString = new Move.PieceMove(moves[i].EndX, moves[i].EndY, moves[i].StartX, moves[i].StartY);
-                    board.MovePiece(moveString, startChar);
-                    board.Squares[moves[i].EndX, moves[i].EndY].Piece = endChar;
-                }
-                //else MovePiece(moves[i], startChar);
-
+                Move.PieceMove moveString = new Move.PieceMove(moves[i].EndX, moves[i].EndY, moves[i].StartX, moves[i].StartY);
+                board.MovePiece(moveString, startChar);
+                board.Squares[moves[i].EndX, moves[i].EndY].Piece = endChar;
+                startChar.SetHasMoved(PriorMoveState);
 
                 // See if better move
                 if (_isMax && score > bestMove.Value)
