@@ -316,7 +316,7 @@ namespace Chess.Classes {
             return boolString;
         }
 
-
+        /*
         public byte[] GetByteArray() {
             var output = new byte[8 * 8];
             for ( int i = 0; i < 8; i++ ) {
@@ -327,7 +327,7 @@ namespace Chess.Classes {
             return output;
         }
         public string GetDataString() => Convert.ToBase64String(GetByteArray());
-
+        */
         public byte[] PositionalByteArray {
             get {
                 return (byte[])AllPieces.Select(i => i.PositionData);
