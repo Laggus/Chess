@@ -76,7 +76,11 @@ namespace Chess.Classes {
 
 
         public void AddPiece(int x, int y, IPiece piece) {// IPiece piece) {
-            AllPieces = new IPiece[AllPieces.Length + 1];
+            var newAllPieces = new IPiece[AllPieces.Length + 1];
+            for (int i = 0; i < AllPieces.Length; i++) {
+                newAllPieces[i] = AllPieces[i];
+            }
+            AllPieces = newAllPieces;
             AllPieces[AllPieces.Length - 1] = piece;
             ActivePieces.Add(piece);
             piece.SetSquare(x, y);
@@ -336,7 +340,7 @@ namespace Chess.Classes {
         */
         public byte[] PositionalByteArray {
             get {
-                return (byte[])AllPieces.Select(i => i.PositionData);
+                return AllPieces.Select(i => i.PositionData).ToArray();
             }
             set {
                 for (int i=0; i<value.Length; i++) {

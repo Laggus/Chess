@@ -221,6 +221,7 @@ namespace Chess {
             else if (board.GetAllPossibleMoves().Count == 0) OnGameOver();
             else if (!IsPlayerControlled[board.CurrentTurn == PieceColor.White ? 1 : 0])
                 BackgroundWork(sender, e);
+            Console.WriteLine();
             waitingForBackgroundWorker = false;
         }
 
