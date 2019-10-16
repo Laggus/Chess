@@ -45,24 +45,32 @@ namespace Chess.Classes {
                 double score;
                 if (!moves[i].IsCastling)
                 {
-                    bool[] OldKingStates = (bool[])board.ActiveKings.Clone();
-                    if (board.GetPiece(moves[i].EndX, moves[i].EndY) != null && board.GetPiece(moves[i].EndX, moves[i].EndY).GetPieceType() == PieceType.King)
+                    if (!moves[i].IsPromoting)
                     {
-                        board.ActiveKings[(board.GetPiece(moves[i].EndX, moves[i].EndY).GetColor() == PieceColor.White) ? 1 : 0] = false;
-                    }
-                    IPiece startChar = board.Squares[moves[i].StartX, moves[i].StartY].Piece;
-                    IPiece endChar = board.Squares[moves[i].EndX, moves[i].EndY].Piece;
-                    bool PriorMoveState = startChar.GetHasMoved();
-                    board.DoMove(moves[i], false);
-                    // Get score
-                    score = MiniMax(board, _depth - 1, !_isMax, _currentTurn == PieceColor.White ? PieceColor.Black : PieceColor.White, _doingHE, _a, _b).Value;
+                        bool[] OldKingStates = (bool[])board.ActiveKings.Clone();
+                        if (board.GetPiece(moves[i].EndX, moves[i].EndY) != null && board.GetPiece(moves[i].EndX, moves[i].EndY).GetPieceType() == PieceType.King)
+                        {
+                            board.ActiveKings[(board.GetPiece(moves[i].EndX, moves[i].EndY).GetColor() == PieceColor.White) ? 1 : 0] = false;
+                        }
+                        IPiece startChar = board.Squares[moves[i].StartX, moves[i].StartY].Piece;
+                        IPiece endChar = board.Squares[moves[i].EndX, moves[i].EndY].Piece;
+                        bool PriorMoveState = startChar.GetHasMoved();
+                        board.DoMove(moves[i], false);
+                        // Get score
+                        score = MiniMax(board, _depth - 1, !_isMax, _currentTurn == PieceColor.White ? PieceColor.Black : PieceColor.White, _doingHE, _a, _b).Value;
 
-                    // Move back
-                    //Move.PieceMove moveString = new Move.PieceMove(moves[i].EndX, moves[i].EndY, moves[i].StartX, moves[i].StartY);
-                    board.DoMove(moves[i], true);
-                    board.Squares[moves[i].EndX, moves[i].EndY].Piece = endChar;
-                    startChar.SetHasMoved(PriorMoveState);
-                    board.ActiveKings = OldKingStates;
+                        // Move back
+                        //Move.PieceMove moveString = new Move.PieceMove(moves[i].EndX, moves[i].EndY, moves[i].StartX, moves[i].StartY);
+                        board.DoMove(moves[i], true);
+                        board.Squares[moves[i].EndX, moves[i].EndY].Piece = endChar;
+                        startChar.SetHasMoved(PriorMoveState);
+                        board.ActiveKings = OldKingStates;
+                    } else
+                    {
+                        board.Promote(moves[i]);
+                        score = MiniMax(board, _depth - 1, !_isMax, _currentTurn == PieceColor.White ? PieceColor.Black : PieceColor.White, _doingHE, _a, _b).Value;
+                        board.Demote(moves[i]);
+                    }
                 } else
                 {
                     board.Castle(moves[i]);

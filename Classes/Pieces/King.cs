@@ -41,7 +41,7 @@ namespace Chess.Classes.Pieces {
                             }
                 }
             }
-
+            
             // Check castling
             int KingHeight = (GetColor() == PieceColor.White) ? 0 : 7;
             if (!GetHasMoved())
@@ -63,7 +63,7 @@ namespace Chess.Classes.Pieces {
                             possibleMoves.Add(Move);
                         }
             }
-
+            
             return possibleMoves;
         }
         public IPiece NewCopy() {
