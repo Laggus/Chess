@@ -40,8 +40,9 @@ namespace Chess.Classes {
                 CurrentTurn = PieceColor.Black;
             else
                 CurrentTurn = PieceColor.White;
-            bool[][][,] boolArray = GetAsBoolArray();
-            string boolString = GetAsBoolString(boolArray);
+            //bool[][][,] boolArray = GetAsBoolArray();
+            //string boolString = GetAsBoolString(boolArray);
+            string boolString = GetDataString();
             if (!BoardHistory.ContainsKey(boolString))
             {
                 BoardHistory.Add(boolString, 1);
@@ -337,7 +338,18 @@ namespace Chess.Classes {
             }
             return boolString;
         }
-        
+  
+
+        public byte[] GetByteArray() {
+            var output = new byte[8 * 8];
+            for ( int i = 0; i < 8; i++ ) {
+                for ( int j = 0; j < 8; j++ ) {
+                    output[i * 8 + j] = Squares[i,j].GetByteData();
+                }
+            }
+            return output;
+        }
+        public string GetDataString() => Convert.ToBase64String(GetByteArray());
 
         public override string ToString() {
             string output = "";

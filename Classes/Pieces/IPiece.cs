@@ -10,9 +10,9 @@ using System.Windows.Media.Imaging;
 
 namespace Chess.Classes.Pieces {
     enum PieceColor { Black = 0x00, White = 0x10 }
-    enum PieceType { Bishop = 0x00, King = 0x01, Knight = 0x02, Pawn = 0x03, Queen = 0x04, Rook = 0x05 }
+    enum PieceType { None=0x00, Bishop = 0x01, King = 0x02, Knight = 0x03, Pawn = 0x04, Queen = 0x05, Rook = 0x06 }
     interface IPiece {
-        byte GetData();
+        byte GetByteData();
 
 
         void SetSquare(int x, int y);
@@ -59,7 +59,7 @@ namespace Chess.Classes.Pieces {
             return tmpImg;
         }
 
-        public byte GetData() {
+        public byte GetByteData() {
             return (byte)((byte)GetPieceType() | (byte)GetColor());
         }
 
