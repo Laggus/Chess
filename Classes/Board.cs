@@ -18,6 +18,7 @@ namespace Chess.Classes {
         public Square[,] Squares { get; set; } = new Square[8, 8];
 
         public Dictionary<string, int> BoardHistory = new Dictionary<string, int>();
+        public ulong Hash = 0;
 
         public bool ThreefoldRep { get; set; } = false;
 
@@ -123,7 +124,7 @@ namespace Chess.Classes {
 
             Draw(mainGrid, dots);
             foreach(Piece piece in ActivePieces) piece.GeneratePositionValues();
-
+            Hash = HashBoard();
         }
         public Board() { }
 
@@ -159,7 +160,18 @@ namespace Chess.Classes {
 
         private void MovePiece(Move.PieceMove _move, IPiece _startChar) {
             _startChar.SetHasMoved(true);
+            //Hash ^= ZobristTable[_move.StartX, _move.StartY, IndexOf(GetPiece(_move))];
+            if (GetSquare(_move.EndX, _move.EndY).Piece != null)
+            {
+                IPiece attackedPiece = GetSquare(_move.EndX, _move.EndY).Piece;
+                Hash ^= ZobristTable[_move.EndX, _move.EndY, IndexOf(attackedPiece.GetPieceType(), attackedPiece.GetColor())];
+            }
+            
+            Hash ^= ZobristTable[_move.StartX, _move.StartY, IndexOf(GetPiece(_move).GetPieceType(), GetPiece(_move).GetColor())];
             GetSquare(_move.EndX, _move.EndY).SetPiece(GetPiece(_move));
+            Hash ^= ZobristTable[_move.EndX, _move.EndY, IndexOf(GetPiece(_move.EndX, _move.EndY).GetPieceType(), GetPiece(_move.EndX, _move.EndY).GetColor())];
+            
+            //Hash ^= ZobristTable[_move.EndX, _move.EndY, IndexOf(GetPiece(_move))];
 
         }
         public void MovePiece(Move.PieceMove move) {
@@ -173,23 +185,41 @@ namespace Chess.Classes {
         }
 
         public void Castle(Move.PieceMove _move) {
+            PieceColor color = _move.StartY == 0 ? PieceColor.White : PieceColor.Black;
             if ( _move.EndX == 6 ) {
                 MovePiece(new Move.PieceMove(7, _move.StartY, 5, _move.StartY));
                 MovePiece(_move);
+                Hash ^= ZobristTable[7, _move.StartY, IndexOf(PieceType.Rook, color)];
+                Hash ^= ZobristTable[5, _move.StartY, IndexOf(PieceType.Rook, color)];
+                Hash ^= ZobristTable[4, _move.StartY, IndexOf(PieceType.King, color)];
+                Hash ^= ZobristTable[6, _move.StartY, IndexOf(PieceType.King, color)];
             }
             if ( _move.EndX == 2 ) {
                 MovePiece(new Move.PieceMove(0, _move.StartY, 3, _move.StartY));
                 MovePiece(_move);
+                Hash ^= ZobristTable[0, _move.StartY, IndexOf(PieceType.Rook, color)];
+                Hash ^= ZobristTable[3, _move.StartY, IndexOf(PieceType.Rook, color)];
+                Hash ^= ZobristTable[4, _move.StartY, IndexOf(PieceType.King, color)];
+                Hash ^= ZobristTable[2, _move.StartY, IndexOf(PieceType.King, color)];
             }
         }
         public void UndoCastle(Move.PieceMove _move) {
+            PieceColor color = _move.StartY == 0 ? PieceColor.White : PieceColor.Black;
             if ( _move.EndX == 6 ) {
                 MovePieceReverse(new Move.PieceMove(7, _move.StartY, 5, _move.StartY));
                 MovePieceReverse(_move);
+                Hash ^= ZobristTable[7, _move.StartY, IndexOf(PieceType.Rook, color)];
+                Hash ^= ZobristTable[5, _move.StartY, IndexOf(PieceType.Rook, color)];
+                Hash ^= ZobristTable[4, _move.StartY, IndexOf(PieceType.King, color)];
+                Hash ^= ZobristTable[6, _move.StartY, IndexOf(PieceType.King, color)];
             }
             if ( _move.EndX == 2 ) {
                 MovePieceReverse(new Move.PieceMove(0, _move.StartY, 3, _move.StartY));
                 MovePieceReverse(_move);
+                Hash ^= ZobristTable[0, _move.StartY, IndexOf(PieceType.Rook, color)];
+                Hash ^= ZobristTable[3, _move.StartY, IndexOf(PieceType.Rook, color)];
+                Hash ^= ZobristTable[4, _move.StartY, IndexOf(PieceType.King, color)];
+                Hash ^= ZobristTable[2, _move.StartY, IndexOf(PieceType.King, color)];
             }
             GetPiece(_move.StartX, _move.StartY).SetHasMoved(false);
             GetPiece((_move.EndX == 6) ? 7 : 0, _move.StartY).SetHasMoved(false);
@@ -222,6 +252,7 @@ namespace Chess.Classes {
         }
         public List<Move.PieceMove> GetAllPossibleMoves() => GetAllPossibleMoves(CurrentTurn);
 
+        Dictionary<ulong, double> judgedBoards = new Dictionary<ulong, double>();
         public double EvaluateBoard(bool _color) {
             double value = 0;
 
@@ -233,26 +264,34 @@ namespace Chess.Classes {
                     value -= item.GetValueAlt();
             });
             */
+            ulong boardHash = Hash;
+            if (!judgedBoards.ContainsKey(boardHash))
+            {
+                for (int x = 0; x < 8; x++)
+                {
+                    for (int y = 0; y < 8; y++)
+                    {
+                        if (this.Squares[x, y].Piece == null) continue;
 
+                        //if ( board.Squares[x, y].Piece.GetColor() == PieceColor.White )
+                        //    value += board.GetSquare(x, y).Piece.GetValue();
+                        //else
+                        //    value -= board.GetSquare(x, y).Piece.GetValueAlt();
+                        //Console.WriteLine(this.GetSquare(x, y).Piece.GetColor() == PieceColor.White ? 1 : 0);
+                        //value += this.GetSquare(x, y).Piece.GetDefinedValue(x, y);
 
-            for ( int x = 0; x < 8; x++ ) {
-                for ( int y = 0; y < 8; y++ ) {
-                    if ( this.Squares[x, y].Piece == null ) continue;
-
-                    //if ( board.Squares[x, y].Piece.GetColor() == PieceColor.White )
-                    //    value += board.GetSquare(x, y).Piece.GetValue();
-                    //else
-                    //    value -= board.GetSquare(x, y).Piece.GetValueAlt();
-                    //Console.WriteLine(this.GetSquare(x, y).Piece.GetColor() == PieceColor.White ? 1 : 0);
-                    //value += this.GetSquare(x, y).Piece.GetDefinedValue(x, y);
-                    
-                    if ( this.Squares[x, y].Piece.GetColor() == PieceColor.White)
-                        value += this.GetSquare(x, y).Piece.GetDefinedValue(x, y);
+                        if (this.Squares[x, y].Piece.GetColor() == PieceColor.White)
+                            value += this.GetSquare(x, y).Piece.GetDefinedValue(x, y);
                         //
-                    else
-                        value -= this.GetSquare(x, y).Piece.GetDefinedValue(7 - x, 7 - y);
-                      
+                        else
+                            value -= this.GetSquare(x, y).Piece.GetDefinedValue(7 - x, 7 - y);
+
+                    }
                 }
+                judgedBoards.Add(boardHash, value);
+            } else
+            {
+                value = judgedBoards[boardHash];
             }
 
 
@@ -358,6 +397,54 @@ namespace Chess.Classes {
             }
         }
 
+        int IndexOf(PieceType _Piece, PieceColor _Color)
+        {
+            int index = 0;
+            switch (_Piece)
+            {
+                case PieceType.Bishop:
+                    index = 0;
+                    break;
+                case PieceType.King:
+                    index = 2;
+                    break;
+                case PieceType.Knight:
+                    index = 4;
+                    break;
+                case PieceType.Pawn:
+                    index = 6;
+                    break;
+                case PieceType.Queen:
+                    index = 8;
+                    break;
+                case PieceType.Rook:
+                    index = 10;
+                    break;
+                default:
+                    index = -1;
+                    break;
+            }
+            if (_Color == PieceColor.White) index += 1;
+            return index;
+        }
+
+        ulong HashBoard()
+        {
+            ulong h = 0;
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    IPiece piece = GetPiece(x, y);
+                    if (piece != null)
+                    {
+                        int index = IndexOf(piece.GetPieceType(), piece.GetColor());
+                        h ^= ZobristTable[x, y, index];
+                    }
+                }
+            }
+            return h;
+        }
 
         public override string ToString() {
             string output = "";

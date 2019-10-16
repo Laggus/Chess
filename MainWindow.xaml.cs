@@ -30,6 +30,8 @@ namespace Chess {
 
         readonly int MinimaxDepth = 5;
 
+        public static ulong[,,] ZobristTable = new ulong[8, 8, 12];
+
         Board board;
         readonly List<Image> dots = new List<Image>();
         AI AI;
@@ -47,6 +49,7 @@ namespace Chess {
             EventManager.RegisterClassHandler(typeof(Window), Window.PreviewMouseDownEvent, new MouseButtonEventHandler(OnPreviewMouseDown));
             EventManager.RegisterClassHandler(typeof(Window), Window.PreviewMouseUpEvent, new MouseButtonEventHandler(OnPreviewMouseUp));
             UpdateLayout();
+            InitTable();
             //CreateBoard();
 
 
@@ -241,6 +244,30 @@ namespace Chess {
                 if (!IsPlayerControlled[board.CurrentTurn == PieceColor.White ? 1 : 0])
                     StartBackgroundWorker();
             }));
+        }
+
+        ulong NexUlong(Random rnd, ulong max)
+        {
+            int rawsize = System.Runtime.InteropServices.Marshal.SizeOf(max);
+            var buffer = new byte[rawsize];
+            rnd.NextBytes(buffer);
+            return BitConverter.ToUInt64(buffer, 0);
+        }
+
+        
+        void InitTable()
+        {
+            Random random = new Random();
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    for (int pieceType = 0; pieceType < 12; pieceType++)
+                    {
+                        ZobristTable[x, y, pieceType] = NexUlong(random, UInt64.MaxValue - 1);
+                    }
+                }
+            }
         }
 
         private void MainGrid_SizeChanged(object sender, SizeChangedEventArgs e) {
