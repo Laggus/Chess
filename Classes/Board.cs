@@ -19,7 +19,7 @@ namespace Chess.Classes {
 
         public Dictionary<ulong, int> BoardHistory = new Dictionary<ulong, int>();
         public Dictionary<ulong, double> JudgedBoards = new Dictionary<ulong, double>();
-        ulong Hash = 0;
+        public ulong Hash = 0;
         public bool ThreefoldRep { get; set; } = false;
 
         public Square GetSquare(int x, int y) {
@@ -173,9 +173,6 @@ namespace Chess.Classes {
         private void MovePiece(Move.PieceMove _move, IPiece _startChar) {
             _startChar.SetHasMoved(true);
 
-            IPiece AttackedPiece = GetPiece(_move.EndX, _move.EndY);
-            if (AttackedPiece != null) Hash ^= ZobristTable[_move.EndX, _move.EndX, IndexOf(AttackedPiece.GetPieceType(), AttackedPiece.GetColor())];
-
             UpdateHash(_move);
             GetSquare(_move.EndX, _move.EndY).SetPiece(GetPiece(_move));
 
@@ -217,21 +214,45 @@ namespace Chess.Classes {
             GetPiece((_move.EndX == 6) ? 7 : 0, _move.StartY).SetHasMoved(false);
             
         }
-        /*
+        
         public void Promote(Move.PieceMove _move)
         {
+            ActivePieces.Remove(GetSquare(_move.StartX, _move.StartY).Piece);
+            Hash ^= ZobristTable[_move.StartX, _move.StartY, IndexOf(PieceType.Pawn, GetPiece(_move.StartX, _move.StartY).GetColor())];
+            Hash ^= ZobristTable[_move.StartX, _move.StartY, IndexOf(PieceType.Queen, GetPiece(_move.StartX, _move.StartY).GetColor())];
+            IPiece piece = new Queen(GetPiece(_move.StartX, _move.StartY).GetColor());
+            piece.Square = GetSquare(_move.StartX, _move.StartY);
+            piece.Board = this;
+            GetSquare(_move.EndX, _move.EndY).SetPiece(piece);
+            ActivePieces.Add(piece);
+            
+            GetSquare(_move.StartX, _move.StartY).Piece = null;
 
+            
         }
 
         public void Demote(Move.PieceMove _move)
         {
-
+            Hash ^= ZobristTable[_move.StartX, _move.StartY, IndexOf(PieceType.Pawn, GetPiece(_move.EndX, _move.EndY).GetColor())];
+            Hash ^= ZobristTable[_move.StartX, _move.StartY, IndexOf(PieceType.Queen, GetPiece(_move.EndX, _move.EndY).GetColor())];
+            IPiece piece = new Pawn(GetPiece(_move.EndX, _move.EndY).GetColor());
+            piece.Square = GetSquare(_move.EndX, _move.EndY);
+            piece.Board = this;
+            GetSquare(_move.StartX, _move.StartY).SetPiece(piece);
+            ActivePieces.Add(piece);
+            ActivePieces.Remove(GetSquare(_move.EndX, _move.EndX).Piece);
+            GetSquare(_move.EndX, _move.EndY).Piece = null;
+            
         }
-        */
+        
         public void DoMove(Move.PieceMove _move, bool _reverseing) {
             if ( !_move.IsCastling ) {
-                if ( !_reverseing ) MovePiece(_move);
-                else MovePieceReverse(_move);
+                if (!_move.IsPromoting)
+                {
+                    if (!_reverseing) MovePiece(_move);
+                    else MovePieceReverse(_move);
+                }
+                else Promote(_move);
             }
             else Castle(_move);
         }
@@ -396,7 +417,7 @@ namespace Chess.Classes {
             }
         }
 
-        int IndexOf(PieceType _Piece, PieceColor _Color)
+        public int IndexOf(PieceType _Piece, PieceColor _Color)
         {
             int index = 0;
             switch (_Piece)

@@ -28,7 +28,7 @@ namespace Chess {
     public partial class MainWindow : Window {
         readonly bool[] IsPlayerControlled = new bool[2] { false, false };
 
-        readonly int MinimaxDepth = 5;
+        readonly int MinimaxDepth = 1;
 
         public static ulong[,,] ZobristTable = new ulong[8, 8, 12];
 

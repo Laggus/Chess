@@ -16,7 +16,7 @@ namespace Chess
             public int EndY { get; set; }
 
             public bool IsCastling { get; set; }
-            //public bool IsPromoting { get; set; }
+            public bool IsPromoting { get; set; }
 
             public static PieceMove ConvertToMove(int startPosX, int startPosY, int endPosX, int endPosY) {
                 return new PieceMove(startPosX, startPosY, endPosX, endPosY);

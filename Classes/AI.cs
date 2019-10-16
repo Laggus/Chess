@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using static Chess.MainWindow;
 
 namespace Chess.Classes {
     class AI {
@@ -47,13 +48,19 @@ namespace Chess.Classes {
                 {
                     if (!moves[i].IsPromoting)
                     {
+                        bool takingPiece = false;
                         bool[] OldKingStates = (bool[])board.ActiveKings.Clone();
-                        if (board.GetPiece(moves[i].EndX, moves[i].EndY) != null && board.GetPiece(moves[i].EndX, moves[i].EndY).GetPieceType() == PieceType.King)
-                        {
-                            board.ActiveKings[(board.GetPiece(moves[i].EndX, moves[i].EndY).GetColor() == PieceColor.White) ? 1 : 0] = false;
-                        }
                         IPiece startChar = board.Squares[moves[i].StartX, moves[i].StartY].Piece;
                         IPiece endChar = board.Squares[moves[i].EndX, moves[i].EndY].Piece;
+                        if (endChar != null)
+                        {
+                            if (endChar.GetPieceType() == PieceType.King)
+                            {
+                                takingPiece = true;
+                                board.ActiveKings[(endChar.GetColor() == PieceColor.White) ? 1 : 0] = false;
+                                board.Hash ^= ZobristTable[moves[i].EndX, moves[i].EndX, board.IndexOf(endChar.GetPieceType(), endChar.GetColor())];
+                            }
+                        }
                         bool PriorMoveState = startChar.GetHasMoved();
                         board.DoMove(moves[i], false);
                         // Get score
@@ -63,6 +70,9 @@ namespace Chess.Classes {
                         //Move.PieceMove moveString = new Move.PieceMove(moves[i].EndX, moves[i].EndY, moves[i].StartX, moves[i].StartY);
                         board.DoMove(moves[i], true);
                         board.Squares[moves[i].EndX, moves[i].EndY].Piece = endChar;
+                        if (takingPiece)
+                            board.Hash ^= ZobristTable[moves[i].EndX, moves[i].EndX, board.IndexOf(endChar.GetPieceType(), endChar.GetColor())];
+
                         startChar.SetHasMoved(PriorMoveState);
                         board.ActiveKings = OldKingStates;
                     } else

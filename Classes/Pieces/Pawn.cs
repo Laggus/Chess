@@ -38,13 +38,23 @@ namespace Chess.Classes.Pieces {
             if ( (GetColor() == PieceColor.White) ) {
                 if ( _startY == 1 )
                     if ( board.Squares[_startX, _startY + 2].Piece == null && board.Squares[_startX, _startY + 1].Piece == null ) possibleMoves.Add(Chess.Move.PieceMove.ConvertToMove(_startX, _startY, _startX, _startY + 2));
-                if ( _startY + 1 <= 7 ) if ( board.Squares[_startX, _startY + 1].Piece == null ) possibleMoves.Add(Chess.Move.PieceMove.ConvertToMove(_startX, _startY, _startX, _startY + 1));
+                if (_startY + 1 <= 7) if (board.Squares[_startX, _startY + 1].Piece == null)
+                    {
+                        Move.PieceMove move = new Move.PieceMove(_startX, _startY, _startX, _startY + 1);
+                        if (_startY == 6) move.IsPromoting = true;
+                        possibleMoves.Add(move); 
+                    }
             }
             else {
                 if ( _startY == 6 ) {
                     if ( board.Squares[_startX, _startY - 2].Piece == null && board.Squares[_startX, _startY - 1].Piece == null ) possibleMoves.Add(Chess.Move.PieceMove.ConvertToMove(_startX, _startY, _startX, _startY - 2));
                 }
-                if ( _startY - 1 >= 0 ) if ( board.Squares[_startX, _startY - 1].Piece == null ) possibleMoves.Add(Chess.Move.PieceMove.ConvertToMove(_startX, _startY, _startX, _startY - 1));
+                if (_startY - 1 >= 0) if (board.Squares[_startX, _startY - 1].Piece == null)
+                    {
+                        Move.PieceMove move = new Move.PieceMove(_startX, _startY, _startX, _startY - 1);
+                        if (_startY == 1) move.IsPromoting = true;
+                        possibleMoves.Add(move);
+                    }
             }
 
             // Check taking piece
