@@ -31,6 +31,7 @@ namespace Chess.Classes {
         public IPiece GetPiece(Move.PieceMove move) => GetSquare(move).Piece;
 
 
+        public IPiece[] AllPieces { get; set; } = new IPiece[0];
         public List<IPiece> ActivePieces { get; set; } = new List<IPiece>();
         public bool[] ActiveKings { get; set; } = new bool[2] { true, true };
         public int TurnNumber { get; set; } = 1;
@@ -42,15 +43,13 @@ namespace Chess.Classes {
                 CurrentTurn = PieceColor.White;
             //bool[][][,] boolArray = GetAsBoolArray();
             //string boolString = GetAsBoolString(boolArray);
-            string boolString = GetDataString();
-            if (!BoardHistory.ContainsKey(boolString))
-            {
+            string boolString = PositionalDataString; //GetDataString();
+            if ( !BoardHistory.ContainsKey(boolString) ) {
                 BoardHistory.Add(boolString, 1);
             }
-            else
-            {
+            else {
                 BoardHistory[boolString]++;
-                if (BoardHistory[boolString] == 3) ThreefoldRep = true;
+                if ( BoardHistory[boolString] == 3 ) ThreefoldRep = true;
             }
             TurnNumber++;
         }
@@ -77,11 +76,10 @@ namespace Chess.Classes {
 
 
         public void AddPiece(int x, int y, IPiece piece) {// IPiece piece) {
+            AllPieces = new IPiece[AllPieces.Length + 1];
+            AllPieces[AllPieces.Length - 1] = piece;
             ActivePieces.Add(piece);
             piece.SetSquare(x, y);
-            //piece.SetX(x);
-            //piece.SetY(y);
-            //Squares[x, y].Piece = piece;
         }
 
         public Board(Canvas background, Grid mainGrid, List<Image> dots) {
@@ -123,12 +121,9 @@ namespace Chess.Classes {
         }
         public Board() { }
 
-        public void ClearBoard()
-        {
-            for (int x = 0; x < 8; x++)
-            {
-                for (int y = 0; y < 8; y++)
-                {
+        public void ClearBoard() {
+            for ( int x = 0; x < 8; x++ ) {
+                for ( int y = 0; y < 8; y++ ) {
                 }
             }
         }
@@ -147,7 +142,7 @@ namespace Chess.Classes {
             var startSquare = GetSquare(xStart, yStart);
             var endSquare = GetSquare(xEnd, yEnd);
 
-            if(endSquare.Piece != null) {
+            if ( endSquare.Piece != null ) {
                 endSquare.Piece.Square = null;
                 endSquare.Piece.Active = false;
             }
@@ -171,42 +166,35 @@ namespace Chess.Classes {
             MovePiece(new Move.PieceMove(move.EndX, move.EndY, move.StartX, move.StartY));
         }
 
-        public void Castle(Move.PieceMove _move)
-        {
-            if (_move.EndX == 6)
-            {
+        public void Castle(Move.PieceMove _move) {
+            if ( _move.EndX == 6 ) {
                 MovePiece(new Move.PieceMove(7, _move.StartY, 5, _move.StartY));
                 MovePiece(_move);
             }
-            if (_move.EndX == 2)
-            {
+            if ( _move.EndX == 2 ) {
                 MovePiece(new Move.PieceMove(0, _move.StartY, 3, _move.StartY));
                 MovePiece(_move);
             }
         }
-        public void UndoCastle(Move.PieceMove _move)
-        {
-            if (_move.EndX == 6)
-            {
+        public void UndoCastle(Move.PieceMove _move) {
+            if ( _move.EndX == 6 ) {
                 MovePieceReverse(new Move.PieceMove(7, _move.StartY, 5, _move.StartY));
                 MovePieceReverse(_move);
             }
-            if (_move.EndX == 2)
-            {
+            if ( _move.EndX == 2 ) {
                 MovePieceReverse(new Move.PieceMove(0, _move.StartY, 3, _move.StartY));
                 MovePieceReverse(_move);
             }
             GetPiece(_move.StartX, _move.StartY).SetHasMoved(false);
             GetPiece((_move.EndX == 6) ? 7 : 0, _move.StartY).SetHasMoved(false);
         }
-        
-        public void DoMove(Move.PieceMove _move, bool _reverseing)
-        {
-            if (!_move.IsCastling)
-            {
-                if (!_reverseing) MovePiece(_move);
+
+        public void DoMove(Move.PieceMove _move, bool _reverseing) {
+            if ( !_move.IsCastling ) {
+                if ( !_reverseing ) MovePiece(_move);
                 else MovePieceReverse(_move);
-            } else Castle(_move);
+            }
+            else Castle(_move);
         }
 
         public List<Move.PieceMove> GetPossibleMovesForPiece(int _startX, int _startY) {
@@ -215,7 +203,7 @@ namespace Chess.Classes {
         public List<Move.PieceMove> GetAllPossibleMoves(PieceColor currentTurn) {
             List<Move.PieceMove> possibleMoves = new List<Move.PieceMove>();
             // If one of the kings dead -> No possible moves
-            if (CheckIfDone()) return possibleMoves;
+            if ( CheckIfDone() ) return possibleMoves;
             for ( int x = 0; x < 8; x++ ) {
                 for ( int y = 0; y < 8; y++ ) {
                     if ( this.Squares[x, y].Piece?.GetColor() == currentTurn ) {
@@ -265,9 +253,8 @@ namespace Chess.Classes {
         public double EvaluateBoard(PieceColor color) => EvaluateBoard(color == PieceColor.White);
         public double EvaluateBoard() => EvaluateBoard(CurrentTurn);
 
-        public bool CheckIfDone()
-        {
-            if (ActiveKings[0] == false || ActiveKings[1] == false) return true;
+        public bool CheckIfDone() {
+            if ( ActiveKings[0] == false || ActiveKings[1] == false ) return true;
             return false;
         }
 
@@ -294,42 +281,32 @@ namespace Chess.Classes {
             return boardClone;
         }
 
-        public bool[][][,] GetAsBoolArray()
-        {
+        public bool[][][,] GetAsBoolArray() {
             bool[][][,] BoolArray = new bool[2][][,];
-            for (int i = 0; i < 2; i++)
-            {
+            for ( int i = 0; i < 2; i++ ) {
                 BoolArray[i] = new bool[6][,];
-                for (int i2 = 0; i2 < 6; i2++)
-                {
+                for ( int i2 = 0; i2 < 6; i2++ ) {
                     BoolArray[i][i2] = new bool[8, 8];
-                    
+
                 }
             }
-            for (int x = 0; x < 8; x++)
-            {
-                for (int y = 0; y < 8; y++)
-                {
+            for ( int x = 0; x < 8; x++ ) {
+                for ( int y = 0; y < 8; y++ ) {
                     IPiece piece = GetPiece(x, y);
-                    if (piece != null)
+                    if ( piece != null )
                         BoolArray[piece.GetColor() == PieceColor.White ? 1 : 0][(int)piece.GetPieceType()][x, y] = true;
                 }
             }
 
             return BoolArray;
         }
-        
-        public string GetAsBoolString(bool[][][,] _BoolArray)
-        {
+
+        public string GetAsBoolString(bool[][][,] _BoolArray) {
             string boolString = "";
-            for (int color = 0; color < 2; color++)
-            {
-                for (int pieceType = 0; pieceType < 6; pieceType++)
-                {
-                    for (int x = 0; x < 8; x++)
-                    {
-                        for (int y = 0; y < 8; y++)
-                        {
+            for ( int color = 0; color < 2; color++ ) {
+                for ( int pieceType = 0; pieceType < 6; pieceType++ ) {
+                    for ( int x = 0; x < 8; x++ ) {
+                        for ( int y = 0; y < 8; y++ ) {
                             boolString += _BoolArray[color][pieceType][x, y];
                         }
                     }
@@ -338,24 +315,45 @@ namespace Chess.Classes {
             }
             return boolString;
         }
-  
+
 
         public byte[] GetByteArray() {
             var output = new byte[8 * 8];
             for ( int i = 0; i < 8; i++ ) {
                 for ( int j = 0; j < 8; j++ ) {
-                    output[i * 8 + j] = Squares[i,j].GetByteData();
+                    output[i * 8 + j] = Squares[i, j].GetByteData();
                 }
             }
             return output;
         }
         public string GetDataString() => Convert.ToBase64String(GetByteArray());
 
+        public byte[] PositionalByteArray {
+            get {
+                return (byte[])AllPieces.Select(i => i.PositionData);
+            }
+            set {
+                for (int i=0; i<value.Length; i++) {
+                    AllPieces[i].PositionData = value[i];
+                }
+            }
+        }
+
+        public string PositionalDataString {
+            get {
+                return Convert.ToBase64String(PositionalByteArray);
+            }
+            set {
+                PositionalByteArray = Convert.FromBase64String(value);
+            }
+        }
+
+
         public override string ToString() {
             string output = "";
-            for(int i=7;i>=0;i--) {
-                for(var j=0; j<8; j++)
-                    output += $"{Squares[j,i].ToString()},\t";
+            for ( int i = 7; i >= 0; i-- ) {
+                for ( var j = 0; j < 8; j++ )
+                    output += $"{Squares[j, i].ToString()},\t";
                 output += "\n";
             }
             return output;
