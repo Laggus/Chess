@@ -56,6 +56,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Classes\AI.cs" />
+    <Compile Include="Classes\AIParallel.cs" />
     <Compile Include="Classes\Board.cs" />
     <Compile Include="Classes\Pieces\King.cs" />
     <Compile Include="Classes\Pieces\Knight.cs" />
