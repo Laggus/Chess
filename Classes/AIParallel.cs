@@ -56,7 +56,7 @@ namespace Chess.Classes {
             }
 
             public void WaitAll() {
-                foreach(var thread in ActiveThreads) {
+                foreach ( var thread in ActiveThreads ) {
                     if ( thread.IsAlive )
                         thread.Join();
                 }
@@ -101,6 +101,7 @@ namespace Chess.Classes {
         #region Minimax
         public Move MiniMax(Board board, int depth, bool isMax, double _a, double _b) {
             Move bestMove = new Move();
+
             if ( isMax ) bestMove.Value = Minimum;
             else bestMove.Value = Maximum;
 
@@ -110,37 +111,43 @@ namespace Chess.Classes {
             }
 
             var moves = board.GetAllPossibleMoves();
+
+            double score;
             foreach ( var move in moves ) {
                 //for ( int i = 0; i < moves.Count; i++ ) {
 
                 // Reference to BestMove required
                 #region GetScore
-                double score;
+
                 ThreadManager.GetScoreCallback callback = new ThreadManager.GetScoreCallback();
                 ParallelProcessor.GetScore(board, move, depth, isMax, _a, _b, callback);
 
-                ParallelProcessor.WaitAll();
+                //ParallelProcessor.WaitAll();
                 //Thread.Sleep(5000);
 
                 score = callback.Score;
-
-                #region PostGetScore
-                // See if better move
-                if ( (isMax && score > bestMove.Value) || (!isMax && score < bestMove.Value) ) {
-                    bestMove.Value = score;
-                    bestMove.move = move;
-                }
-
-                // Alpha beta pruning
-                if ( isMax )
-                    _a = Math.Max(bestMove.Value, _a);
-                else
-                    _b = Math.Min(bestMove.Value, _b);
-
-                if ( _a >= _b ) break;
-                #endregion
-                #endregion
             }
+            ParallelProcessor.WaitAll();
+
+            //if ( true ) {
+            //    #region PostGetScore
+            //    // See if better move
+            //    if ( (isMax && score > bestMove.Value) || (!isMax && score < bestMove.Value) ) {
+            //        bestMove.Value = score;
+            //        bestMove.move = move;
+            //    }
+
+            //    // Alpha beta pruning
+            //    if ( isMax )
+            //        _a = Math.Max(bestMove.Value, _a);
+            //    else
+            //        _b = Math.Min(bestMove.Value, _b);
+
+            //    if ( _a >= _b ) break;
+            #endregion
+            #endregion
+            //}
+
             return bestMove;
         }
 
@@ -200,8 +207,6 @@ namespace Chess.Classes {
 
         }
         #endregion
-        #endregion
-
 
 
         private ThreadManager ParallelProcessor { get; set; }

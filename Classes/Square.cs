@@ -30,6 +30,11 @@ namespace Chess.Classes {
             YPos = _yPos;
         }
 
+        public byte GetByteData() {
+            if ( this.Piece == null ) return 0x00;
+            else return this.Piece.GetByteData();
+        }
+
         public new string ToString() {
             if ( Piece == null )
                 return $"[{XPos},{YPos}] Empty Space";
