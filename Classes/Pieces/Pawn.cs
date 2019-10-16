@@ -30,6 +30,7 @@ namespace Chess.Classes.Pieces {
         public Pawn(PieceColor color) {
             this.Color = color;
             this.Type = PieceType.Pawn;
+            GeneratePositionValues();
         }
 
         public List<Move.PieceMove> GetPossibleMoves(Board board, int _startX, int _startY) {

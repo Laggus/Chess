@@ -24,6 +24,7 @@ namespace Chess.Classes.Pieces {
         public Queen(PieceColor color) {
             this.Color = color;
             this.Type = PieceType.Queen;
+            GeneratePositionValues();
         }
 
         public List<Move.PieceMove> GetPossibleMoves(Board board, int _startX, int _startY) {

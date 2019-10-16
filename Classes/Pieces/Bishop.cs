@@ -27,6 +27,7 @@ namespace Chess.Classes.Pieces {
         public Bishop(PieceColor color) {
             this.Color = color;
             this.Type = PieceType.Bishop;
+            GeneratePositionValues();
         }
 
         public IPiece NewCopy() {

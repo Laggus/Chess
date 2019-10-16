@@ -122,7 +122,6 @@ namespace Chess.Classes {
             AddPiece(4, 7, new King(PieceColor.Black) { Board = this });
 
             Draw(mainGrid, dots);
-            foreach(Piece piece in ActivePieces) piece.GeneratePositionValues();
             Hash = HashBoard();
         }
         public Board() { }
