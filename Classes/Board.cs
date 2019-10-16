@@ -119,6 +119,8 @@ namespace Chess.Classes {
             AddPiece(4, 7, new King(PieceColor.Black) { Board = this });
 
             Draw(mainGrid, dots);
+            foreach(Piece piece in ActivePieces) piece.GeneratePositionValues();
+
         }
         public Board() { }
 
@@ -248,12 +250,15 @@ namespace Chess.Classes {
                     //    value += board.GetSquare(x, y).Piece.GetValue();
                     //else
                     //    value -= board.GetSquare(x, y).Piece.GetValueAlt();
-
-                    if ( this.Squares[x, y].Piece.GetColor() == PieceColor.White )
-                        value += this.GetSquare(x, y).Piece.GetValue(x, y);
+                    //Console.WriteLine(this.GetSquare(x, y).Piece.GetColor() == PieceColor.White ? 1 : 0);
+                    //value += this.GetSquare(x, y).Piece.GetDefinedValue(x, y);
+                    
+                    if ( this.Squares[x, y].Piece.GetColor() == PieceColor.White)
+                        value += this.GetSquare(x, y).Piece.GetDefinedValue(x, y);
+                        //
                     else
-                        value -= this.GetSquare(x, y).Piece.GetValue(7 - x, 7 - y);
-
+                        value -= this.GetSquare(x, y).Piece.GetDefinedValue(7 - x, 7 - y);
+                      
                 }
             }
 
@@ -282,6 +287,7 @@ namespace Chess.Classes {
 
             this.ActivePieces.ForEach(piece => {
                 var copy = piece.NewCopy();
+                copy.DefinedValues = piece.DefinedValues;
                 copy.Active = piece.Active;
                 copy.Square = boardClone.GetSquare(piece.Square);
                 if ( copy.Active ) boardClone.GetSquare(copy.Square).Piece = copy;

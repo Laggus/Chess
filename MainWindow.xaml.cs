@@ -28,7 +28,7 @@ namespace Chess {
     public partial class MainWindow : Window {
         readonly bool[] IsPlayerControlled = new bool[2] { false, false };
 
-        readonly int MinimaxDepth = 4;
+        readonly int MinimaxDepth = 5;
 
         Board board;
         readonly List<Image> dots = new List<Image>();
@@ -236,6 +236,7 @@ namespace Chess {
                 board = new Board(background, mainGrid, dots);
                 AI = new AI(board, MinimaxDepth, -1000000, 1000000);
                 UpdateVisualBoard();
+                System.Windows.Application.Current.Shutdown();
                 if (!IsPlayerControlled[board.CurrentTurn == PieceColor.White ? 1 : 0])
                     StartBackgroundWorker();
             }));

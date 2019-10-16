@@ -16,10 +16,13 @@ namespace Chess.Classes.Pieces {
 
 
         void SetSquare(int x, int y);
-
+        
         int GetValue(int x, int y);
         int GetValue();
         int GetValueAlt();
+        int GetDefinedValue(int x, int y);
+        void GeneratePositionValues();
+        int[,] DefinedValues { get; set; }
 
         PieceColor GetColor();
         PieceType GetPieceType();
@@ -75,6 +78,18 @@ namespace Chess.Classes.Pieces {
         public Board Board { get; set; }
         public bool Active { get; set; }
 
+        public int[,] DefinedPositionValues = new int[8, 8];
+        public int[,] DefinedValues
+        {
+            get
+            {
+                return DefinedPositionValues;
+            }
+            set
+            {
+                DefinedPositionValues = value;
+            }
+        }
 
         protected PieceColor Color;
         public PieceColor GetColor() => Color;
@@ -95,11 +110,24 @@ namespace Chess.Classes.Pieces {
         }
 
 
-        public virtual int GetValue(int x, int y) => 0;
+        public virtual int GetValue(int x, int y) {
+            throw new NotImplementedException();
+        }
         public int GetValue(Square square) => GetValue(square.XPos, square.YPos);
         public int GetValue() => GetValue(Square);
         public int GetValueAlt() => GetValue(7 - Square.XPos, 7 - Square.YPos);
-
+        public int GetValueAlt(int x, int y) => GetValue(7 - x, 7 - y);
+        public int GetDefinedValue(int x, int y) => DefinedPositionValues[x, y];
+        public void GeneratePositionValues()
+        {
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    DefinedPositionValues[x, y] = GetValue(x, y);
+                }
+            }
+        }
 
     }
 
