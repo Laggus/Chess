@@ -28,11 +28,11 @@ namespace Chess {
     public partial class MainWindow : Window {
         readonly bool[] IsPlayerControlled = new bool[2] { false, false };
 
-        readonly int MinimaxDepth = 5;
+        readonly int MinimaxDepth = 2;
 
         Board board;
         readonly List<Image> dots = new List<Image>();
-        AI AI;
+        AIParallel AI;
 
         SelectedPiece selectedPiece;
         //PieceColor currentTurn = PieceColor.White;
@@ -59,7 +59,7 @@ namespace Chess {
             if ( mainGrid.ActualWidth != 0 ) {
 
                 board = new Board(background, mainGrid, dots); ;
-                AI = new AI(board, MinimaxDepth, -1000000, 1000000);
+                AI = new AIParallel(board, MinimaxDepth, -1000000, 1000000);
                 UpdateVisualBoard();
 
                 dispatcherTimer.Stop();
@@ -212,6 +212,7 @@ namespace Chess {
             }
             IPiece startChar = board.Squares[aiMove.move.StartX, aiMove.move.StartY].Piece;
             board.DoMove(aiMove.move, false);
+            if ( Application.Current == null ) return;
             Application.Current.Dispatcher.Invoke(new Action(() => {
                 UpdateVisualBoard();
             }));
@@ -235,7 +236,7 @@ namespace Chess {
                 selectedPiece = null;
                 board.ClearBoard();
                 board = new Board(background, mainGrid, dots);
-                AI = new AI(board, MinimaxDepth, -1000000, 1000000);
+                AI = new AIParallel(board, MinimaxDepth, -1000000, 1000000);
                 UpdateVisualBoard();
                 System.Windows.Application.Current.Shutdown();
                 if (!IsPlayerControlled[board.CurrentTurn == PieceColor.White ? 1 : 0])

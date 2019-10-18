@@ -42,27 +42,27 @@ namespace Chess.Classes.Pieces {
                 }
             }
 
-            // Check castling
-            int KingHeight = (GetColor() == PieceColor.White) ? 0 : 7;
-            if (!GetHasMoved())
-            {
-                if (board.GetSquare(0, KingHeight).Piece != null)
-                    if (!board.GetSquare(0, KingHeight).Piece.GetHasMoved() && board.GetSquare(0, KingHeight).Piece.GetPieceType() == PieceType.Rook)
-                        if (board.GetSquare(1, KingHeight).Piece == null && board.GetSquare(2, KingHeight).Piece == null && board.GetSquare(3, KingHeight).Piece == null)
-                        {
-                            Move.PieceMove Move = Chess.Move.PieceMove.ConvertToMove(_startX, _startY, 2, KingHeight);
-                            Move.IsCastling = true;
-                            possibleMoves.Add(Move);
-                        }
-                if (board.GetSquare(7, KingHeight).Piece != null)
-                    if (!board.GetSquare(7, KingHeight).Piece.GetHasMoved() && board.GetSquare(7, KingHeight).Piece.GetPieceType() == PieceType.Rook)
-                        if (board.GetSquare(5, KingHeight).Piece == null && board.GetSquare(6, KingHeight).Piece == null)
-                        {
-                            Move.PieceMove Move = Chess.Move.PieceMove.ConvertToMove(_startX, _startY, 6, KingHeight);
-                            Move.IsCastling = true;
-                            possibleMoves.Add(Move);
-                        }
-            }
+            //// Check castling
+            //int KingHeight = (GetColor() == PieceColor.White) ? 0 : 7;
+            //if (!GetHasMoved())
+            //{
+            //    if (board.GetSquare(0, KingHeight).Piece != null)
+            //        if (!board.GetSquare(0, KingHeight).Piece.GetHasMoved() && board.GetSquare(0, KingHeight).Piece.GetPieceType() == PieceType.Rook)
+            //            if (board.GetSquare(1, KingHeight).Piece == null && board.GetSquare(2, KingHeight).Piece == null && board.GetSquare(3, KingHeight).Piece == null)
+            //            {
+            //                Move.PieceMove Move = Chess.Move.PieceMove.ConvertToMove(_startX, _startY, 2, KingHeight);
+            //                Move.IsCastling = true;
+            //                possibleMoves.Add(Move);
+            //            }
+            //    if (board.GetSquare(7, KingHeight).Piece != null)
+            //        if (!board.GetSquare(7, KingHeight).Piece.GetHasMoved() && board.GetSquare(7, KingHeight).Piece.GetPieceType() == PieceType.Rook)
+            //            if (board.GetSquare(5, KingHeight).Piece == null && board.GetSquare(6, KingHeight).Piece == null)
+            //            {
+            //                Move.PieceMove Move = Chess.Move.PieceMove.ConvertToMove(_startX, _startY, 6, KingHeight);
+            //                Move.IsCastling = true;
+            //                possibleMoves.Add(Move);
+            //            }
+            //}
 
             return possibleMoves;
         }

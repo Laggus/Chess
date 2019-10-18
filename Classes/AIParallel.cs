@@ -6,77 +6,94 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Chess.Classes {
+namespace Chess.Classes
+{
 
-    class AIParallel {
-        private class TaskManager {
+    class AIParallel
+    {
+        private class TaskManager
+        {
 
-            private int GetNumberOfLogicalCores() {
-                return Environment.ProcessorCount;
-            }
-
-            private class BoardBufferItem {
-                private Board Board { get; set; } = new Board();
-                public Board GetBoard() {
-                    FirstRun = false;
-                    return this.Board;
-                }
+            public class BoardBufferItem
+            {
+                public Board Board { get; set; } = new Board();
                 public Task Task { get; set; }
-                private bool FirstRun {get;set;} = true;
+                private object ThreadLock { get; set; } = new object();
+                public TaskStatus TaskStatusFromDealer { get; set; }
                 public bool IsFree {
                     get {
-                        if ( FirstRun ) return true;
-                        if ( Task == null ) return false;
-                        return Task.Status != TaskStatus.Running;
+                        lock (ThreadLock)
+                        {
+                            if (Task == null) return false;
+                            switch (Task.Status)
+                            {
+                                case TaskStatus.RanToCompletion:
+                                    return true;
+                                case TaskStatus.Faulted:
+                                    return true;
+                                case TaskStatus.Canceled:
+                                    return true;
+                                case TaskStatus.Running:
+                                    return false;
+                                case TaskStatus.WaitingForActivation:
+                                    return false;
+                                case TaskStatus.Created:
+                                    return false;
+                                case TaskStatus.WaitingForChildrenToComplete:
+                                    return false;
+                                case TaskStatus.WaitingToRun:
+                                    return false;
+                            }
+                        }
+                        throw new Exception($"Unhandled ThreadStatus {Task.Status}");
+
+                        //if ( FirstRun ) return true;
+                        //if ( Task == null ) return false;
+                        //if ( Task.Status == TaskStatus.WaitingToRun ) return false;
+                        //return Task.Status != TaskStatus.Running;
                     }
                 }
             }
-            private BoardBufferItem[] BoardBuffer { get; set; }
+            private object BoardBufferLock { get; set; } = new object();
+            private List<BoardBufferItem> BoardBuffer { get; set; } = new List<BoardBufferItem>();
+            private BoardBufferItem AddNewBufferItem()
+            {
+                throw new NotImplementedException();
+                lock (BoardBufferLock)
+                {
+                    foreach (var item in BoardBuffer) if (item.IsFree) return item;
+                    //BoardBuffer.Add()
+                    /*
+                    var newBoardBuffer = new BoardBufferItem[BoardBuffer.Length + 1];
+                    for (int i = 0; i < BoardBuffer.Length; i++) newBoardBuffer[i] = BoardBuffer[i];
+                    newBoardBuffer[BoardBuffer.Length] = new BoardBufferItem();
+                    BoardBuffer = newBoardBuffer;
+                    return BoardBuffer[BoardBuffer.Length - 1];
+                    */
+                }
+            }
+
             private int NumberOfManagedProcesses { get; set; }
             public AIParallel AIParallel { get; set; }
 
 
             public List<Task> ActiveTasks { get; set; } = new List<Task>();
-            public TaskManager(AIParallel aIParallel) {
-                NumberOfManagedProcesses = GetNumberOfLogicalCores();
-                BoardBuffer = new BoardBufferItem[NumberOfManagedProcesses];
-                for ( int i = 0; i < NumberOfManagedProcesses; i++ ) {
-                    BoardBuffer[i] = new BoardBufferItem();
-                }
+            public TaskManager(AIParallel aIParallel)
+            {
                 this.AIParallel = aIParallel;
 
             }
 
-            public class GetScoreCallback {
-                public double Score { get; set; }
-            }
-            /*
-            public void GetScore(Board board, Move.PieceMove move, int depth, bool isMax, double _a, double _b, GetScoreCallback callback) {
-                var task = new Task(() => {
-                    lock ( board ) {
-                        callback.Score = AIParallel.GetScore(board, move, depth, isMax, _a, _b);
-                    }
-
-                });
-                lock ( ActiveTasks ) ActiveTasks.Add(task);
-                task.Start();
-
-                //System.Threading.ThreadPool.QueueUserWorkItem(() => { })
-
-            }
-            private void AfterGetScore(ref double output, double value) {
-                output = value;
-            }
-            */
-
-            public void AbortAll() {
+            public void AbortAll()
+            {
                 throw new NotImplementedException();
                 //Task.Factory.
                 //ActiveTasks.
                 //ActiveTasks.ForEach(t => t.Abort());
             }
 
-            public void WaitAll() {
+            public void WaitAll()
+            {
                 throw new NotImplementedException();
                 //foreach ( var thread in ActiveTasks ) {
                 //    if ( thread.IsAlive )
@@ -85,37 +102,56 @@ namespace Chess.Classes {
                 //WaitAll();
             }
 
-            public Board GetBoard(Task task) {
-                lock ( BoardBuffer ) {
-                    var tasks = new Task[BoardBuffer.Length];
-                    int i;
-                    for (i = 0; i < BoardBuffer.Length; i++ ) {
-                        if ( BoardBuffer[i].IsFree ) {
-                            BoardBuffer[i].Task = task;
-                            return BoardBuffer[i].GetBoard();
-                        }
-                        tasks[i] = BoardBuffer[i].Task;
-                    }
-                    i = Task.WaitAny(tasks);
-                    BoardBuffer[i].Task = task;
-                    return  BoardBuffer[i].GetBoard();
+            public BoardBufferItem GetBoardBufferItem(/*Task task*/)
+            {
+                lock (BoardBufferLock)
+                {
+                    foreach (var item in BoardBuffer) if (item.IsFree) { item.TaskStatusFromDealer = item.Task.Status; return item; }
+                    var newObj = new BoardBufferItem();
+                    BoardBuffer.Add(newObj);
+                    return newObj;
                 }
+
+
+                //lock (BoardBufferLock)
+                //{
+                //    var tasks = new Task[BoardBuffer.Length];
+                //    int i;
+                //    for (i = 0; i < BoardBuffer.Length; i++)
+                //    {
+                //        if (BoardBuffer[i].IsFree)
+                //        {
+                //            return BoardBuffer[i];
+                //        }
+                //        tasks[i] = BoardBuffer[i].Task;
+                //    }
+                //    return AddNewBufferItem();
+                //}
             }
 
         }
 
-        private double GetScore(Board board, Move.PieceMove move, int depth, bool isMax, double _a, double _b) {
+        private double GetScore(Board board, Move.PieceMove move, int depth, bool isMax, double _a, double _b)
+        {
             double score;
-            if ( move.IsCastling ) {
+            if (board.GetPiece(move) == null)
+            {
+                Console.WriteLine("Invalid move in Parallel - Evaluating score as 0");
+                return 0;
+            }
+            if (move.IsCastling)
+            {
                 board.Castle(move);
                 board.SwitchTurn();
                 score = MiniMax(board, depth - 1, !isMax, _a, _b).Value;
                 board.SwitchTurn();
                 board.UndoCastle(move);
             }
-            else {
+            else
+            {
                 bool[] OldKingStates = (bool[])board.ActiveKings.Clone();
-                if ( board.GetPiece(move.EndX, move.EndY) != null && board.GetPiece(move.EndX, move.EndY).GetPieceType() == PieceType.King ) {
+                if (board.GetPiece(move.EndX, move.EndY) != null && board.GetPiece(move.EndX, move.EndY).GetPieceType() == PieceType.King)
+                {
                     board.ActiveKings[(board.GetPiece(move.EndX, move.EndY).GetColor() == PieceColor.White) ? 1 : 0] = false;
                 }
                 IPiece startPiece = board.GetPiece(move.StartX, move.StartY);
@@ -127,118 +163,92 @@ namespace Chess.Classes {
                 score = MiniMax(board, depth - 1, !isMax, _a, _b).Value;
                 board.SwitchTurn();
                 // Move back
-                //Move.PieceMove moveString = new Move.PieceMove(move.EndX, move.EndY, move.StartX, move.StartY);
-                board.DoMove(move, true);
-                board.Squares[move.EndX, move.EndY].Piece = endPiece;
-                startPiece.SetHasMoved(PriorMoveState);
-                board.ActiveKings = OldKingStates;
+                //board.DoMove(move, true);
+                //board.Squares[move.EndX, move.EndY].Piece = endPiece;
+                //startPiece.SetHasMoved(PriorMoveState);
+                //board.ActiveKings = OldKingStates;
             }
             return score;
         }
 
         #region Minimax
-        public Move MiniMax(Board board, int depth, bool isMax, double _a, double _b) {
+        double MiniMaxThreadStartGetScore(ref Board board, ref TaskManager.BoardBufferItem boardBufferItem, ref Move.PieceMove[] moves, int localI, int depth, bool isMax, double _a, double _b)
+        {
+            //boardBufferItem.Task = scoreTasks[i] = new Task<double>(() => {
+            lock (board) board.CloneToBoard(boardBufferItem.Board);
+            return GetScore(boardBufferItem.Board, moves[localI], depth, isMax, _a, _b);
+            //});
+        }
+
+        public Move MiniMax(Board board, int depth, bool isMax, double _a, double _b)
+        {
             Move bestMove = new Move();
 
-            if ( isMax ) bestMove.Value = Minimum;
+            if (isMax) bestMove.Value = Minimum;
             else bestMove.Value = Maximum;
 
-            if ( depth == 0 ) {
+            if (depth == 0)
+            {
                 bestMove.Value = board.EvaluateBoard();
                 return bestMove;
             }
 
             var moves = board.GetAllPossibleMoves().ToArray();
 
-            var scoreTasks = new Task[moves.Length];
-            var scores = new double[moves.Length];
-            for ( int i = 0; i < moves.Length; i++ ) {
-                new Task(() => {
-                    scores[i] = GetScore(board, moves[i], depth, isMax, _a, _b);
-                }).Start();
+            var scoreTasks = new Task<double>[moves.Length];
+
+            for (int i = 0; i < moves.Length; i++)
+            {
+                int localI = i;
+                var boardBufferItem = ParallelProcessor.GetBoardBufferItem();
+                boardBufferItem.Task = null;
+
+                //boardBufferItem.Task = scoreTasks[localI] = Task.Run(() => MiniMaxThreadStartGetScore(ref board, ref boardBufferItem, ref moves, localI, depth, isMax, _a, _b));
+                //boardBufferItem.Task = scoreTasks[i] = Task.Factory.StartNew(() => MiniMaxThreadStartGetScore(ref board, ref boardBufferItem, ref moves, localI, depth, isMax, _a, _b));
+                boardBufferItem.Task = scoreTasks[localI] = new Task<double>(() => MiniMaxThreadStartGetScore(ref board, ref boardBufferItem, ref moves, localI, depth, isMax, _a, _b));
+                boardBufferItem.Task.Start();
+                /*
+                boardBufferItem.Task = scoreTasks[i] = new Task<double>(() => {
+                    lock (board) board.CloneToBoard(boardBufferItem.Board);
+                    return GetScore(boardBufferItem.Board, moves[localI], depth, isMax, _a, _b);
+                });
+                */
+                //lock (boardBufferItem)
+                //    if (boardBufferItem.Task.Status == TaskStatus.Created || boardBufferItem.Task.Status == TaskStatus.WaitingToRun)
+                //        boardBufferItem.Task.Start();
             }
+            //foreach (var t in scoreTasks) t.Start();
 
-            Task.WaitAll(scoreTasks);
+            //Task.WaitAll(scoreTasks);
 
-            for ( int i = 0; i < moves.Length; i++ ) {
-                #region PostGetScore
+            for (int LoopTTL = 0; LoopTTL < moves.Length; LoopTTL++)
+            {
+                Task<double>[] remainingTasks = scoreTasks.Where(k => k != null).ToArray();
+                int i = Task.WaitAny(remainingTasks);
+                double score = scoreTasks[i].Result;
+                //var tmpScoreTasks = scoreTasks.ToList();
+                //tmpScoreTasks.Remove(scoreTasks[i]);
+                //scoreTasks = tmpScoreTasks.ToArray();
+
                 // See if better move
-                if ( (isMax && scores[i] > bestMove.Value) || (!isMax && scores[i] < bestMove.Value) ) {
-                    bestMove.Value = scores[i];
+                if ((isMax && score > bestMove.Value) || (!isMax && score < bestMove.Value))
+                {
+                    bestMove.Value = score;
                     bestMove.move = moves[i];
                 }
 
                 // Alpha beta pruning
-                if ( isMax )
+                if (isMax)
                     _a = Math.Max(bestMove.Value, _a);
                 else
                     _b = Math.Min(bestMove.Value, _b);
 
-                if ( _a >= _b ) break;
-                #endregion
-                #endregion
+                if (_a >= _b) break;
             }
 
             return bestMove;
         }
-
-
-        #region OldSynced
-        Move GetBestMoveFromList(List<Move> moves, Move initialOutput, bool _isMax, double _a, double _b) {
-            Move output = initialOutput;
-            foreach ( var move in moves ) {
-                if ( _isMax && move.Value > output.Value || !_isMax && move.Value < output.Value )
-                    output = move;
-
-                // Alpha beta pruning
-                if ( _isMax ) _a = Math.Max(output.Value, _a);
-                else _b = Math.Min(output.Value, _b);
-
-                if ( _a >= _b ) break;
-            }
-            return output;
-        }
-
-        List<Move> EvaluateAllPossibleMoves(Board board, int _depth, bool _isMax, double _a, double _b) {
-            var results = new List<Move>();
-            var moves = board.GetAllPossibleMoves();
-
-            board.SwitchTurn();
-            foreach ( var move in moves ) {
-                IPiece endChar = board.Squares[move.EndX, move.EndY].Piece;
-                board.MovePiece(move);
-
-                // Get score
-                results.Add(new Move() {
-                    move = move,
-                    Value = MiniMaxSync(board, _depth - 1, !_isMax, _a, _b).Value
-                });
-
-                //Move back
-                board.MovePieceReverse(move);
-                board.GetSquare(move.EndX, move.EndY).Piece = endChar;
-            }
-            board.SwitchTurn();
-            return results;
-        }
-
-        public Move MiniMaxSync(Board board, int _depth, bool _isMax, double _a, double _b) {
-            Move bestMove = new Move();
-            if ( _isMax ) bestMove.Value = Minimum;
-            else bestMove.Value = Maximum;
-
-            if ( _depth == 0 ) {
-                bestMove.Value = board.EvaluateBoard();
-                return bestMove;
-            }
-
-            var results = EvaluateAllPossibleMoves(board, _depth, _isMax, _a, _b);
-
-            return GetBestMoveFromList(results, bestMove, _isMax, _a, _b);
-
-        }
         #endregion
-
 
         private TaskManager ParallelProcessor { get; set; }
 
@@ -248,12 +258,28 @@ namespace Chess.Classes {
         public Board MainBoard { get; set; }
 
 
-        public Move GetBestMove() {
+        public Move GetBestMove()
+        {
             Board boardClone = MainBoard.Clone();
-            return MiniMax(boardClone, Depth, true, Minimum, Maximum);
+            var output = MiniMax(boardClone, Depth, true, Minimum, Maximum);
+            if (MainBoard.GetPiece(output.move) == null)
+            {
+                Console.WriteLine("Invalid move from AIParallel - Retrying");
+                return GetBestMove();
+            }
+
+            return output;
         }
 
-        public AIParallel(Board board, int depth) {
+        public AIParallel(Board board, int depth)
+        {
+            MainBoard = board;
+            this.Depth = depth;
+
+            ParallelProcessor = new TaskManager(this);
+        }
+        public AIParallel(Board board, int depth, int min, int max)
+        {
             MainBoard = board;
             this.Depth = depth;
 

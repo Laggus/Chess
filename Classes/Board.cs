@@ -43,14 +43,14 @@ namespace Chess.Classes {
                 CurrentTurn = PieceColor.White;
             //bool[][][,] boolArray = GetAsBoolArray();
             //string boolString = GetAsBoolString(boolArray);
-            string boolString = PositionalDataString; //GetDataString();
-            if ( !BoardHistory.ContainsKey(boolString) ) {
-                BoardHistory.Add(boolString, 1);
-            }
-            else {
-                BoardHistory[boolString]++;
-                if ( BoardHistory[boolString] == 3 ) ThreefoldRep = true;
-            }
+            //string boolString = BoardDataString; //GetDataString();
+            //if ( !BoardHistory.ContainsKey(boolString) ) {
+            //    BoardHistory.Add(boolString, 1);
+            //}
+            //else {
+            //    BoardHistory[boolString]++;
+            //    if ( BoardHistory[boolString] == 3 ) ThreefoldRep = true;
+            //}
             TurnNumber++;
         }
 
@@ -86,13 +86,7 @@ namespace Chess.Classes {
             piece.SetSquare(x, y);
         }
 
-        public Board(Canvas background, Grid mainGrid, List<Image> dots) {
-            BitmapImage source = new BitmapImage(new Uri(Path.GetFullPath("Images/Blank_Chess_Board.png"), UriKind.Absolute));
-            background.Background = new ImageBrush(source);
-            background.Width = mainGrid.ActualWidth;
-            background.Height = mainGrid.ActualHeight;
-
-
+        private void Initialize() {
             for ( int x = 0; x < 8; x++ ) {
                 for ( int y = 0; y < 8; y++ ) {
                     Squares[x, y] = new Square(null, x, y);
@@ -120,12 +114,23 @@ namespace Chess.Classes {
             AddPiece(3, 7, new Queen(PieceColor.Black) { Board = this });
             AddPiece(4, 0, new King(PieceColor.White) { Board = this });
             AddPiece(4, 7, new King(PieceColor.Black) { Board = this });
+        }
+
+        public Board(Canvas background, Grid mainGrid, List<Image> dots) {
+            BitmapImage source = new BitmapImage(new Uri(Path.GetFullPath("Images/Blank_Chess_Board.png"), UriKind.Absolute));
+            background.Background = new ImageBrush(source);
+            background.Width = mainGrid.ActualWidth;
+            background.Height = mainGrid.ActualHeight;
+
+            Initialize();
 
             Draw(mainGrid, dots);
             foreach(Piece piece in ActivePieces) piece.GeneratePositionValues();
 
         }
-        public Board() { }
+        public Board() {
+            Initialize();
+        }
 
         public void ClearBoard() {
             for ( int x = 0; x < 8; x++ ) {
@@ -163,9 +168,6 @@ namespace Chess.Classes {
 
         }
         public void MovePiece(Move.PieceMove move) {
-            if ( GetPiece(move) == null ) {
-                Console.WriteLine("Potatoes");
-            }
             MovePiece(move, GetPiece(move.StartX, move.StartY));
         }
         public void MovePieceReverse(Move.PieceMove move) {
@@ -225,32 +227,14 @@ namespace Chess.Classes {
         public double EvaluateBoard(bool _color) {
             double value = 0;
 
-            /*
-            board.ActivePieces.ForEach(item => {
-                if( item.GetColor() == PieceColor.White)
-                    value += item.GetValue();
-                else
-                    value -= item.GetValueAlt();
-            });
-            */
-
-
             for ( int x = 0; x < 8; x++ ) {
                 for ( int y = 0; y < 8; y++ ) {
                     if ( this.Squares[x, y].Piece == null ) continue;
-
-                    //if ( board.Squares[x, y].Piece.GetColor() == PieceColor.White )
-                    //    value += board.GetSquare(x, y).Piece.GetValue();
-                    //else
-                    //    value -= board.GetSquare(x, y).Piece.GetValueAlt();
-                    //Console.WriteLine(this.GetSquare(x, y).Piece.GetColor() == PieceColor.White ? 1 : 0);
-                    //value += this.GetSquare(x, y).Piece.GetDefinedValue(x, y);
                     
-                    if ( this.Squares[x, y].Piece.GetColor() == PieceColor.White)
-                        value += this.GetSquare(x, y).Piece.GetDefinedValue(x, y);
-                        //
+                    if ( this.GetPiece(x,y).GetColor() == PieceColor.White)
+                        value += this.GetPiece(x, y).GetDefinedValue(x, y);
                     else
-                        value -= this.GetSquare(x, y).Piece.GetDefinedValue(7 - x, 7 - y);
+                        value -= this.GetPiece(x, y).GetDefinedValue(7 - x, 7 - y);
                       
                 }
             }
@@ -269,27 +253,36 @@ namespace Chess.Classes {
 
         public Board Clone() {
             var boardClone = new Board();
-            boardClone.CurrentTurn = CurrentTurn;
+            CloneToBoard(boardClone);
 
+            return boardClone;
+        }
+        public void CloneToBoard(Board boardTarget) {
+            boardTarget.CurrentTurn = CurrentTurn;
+
+            /*
             for ( int x = 0; x < 8; x++ ) {
                 for ( int y = 0; y < 8; y++ ) {
-                    boardClone.Squares[x, y] = new Square(null, x, y);
+                    boardTarget.Squares[x, y] = new Square(null, x, y);
                 }
             }
-
+            */
+            for ( int i = 0; i < AllPieces.Length; i++ ) {
+                AllPieces[i].CopyInto(boardTarget.AllPieces[i]);
+            }
+            /*
             this.ActivePieces.ForEach(piece => {
                 var copy = piece.NewCopy();
                 copy.DefinedValues = piece.DefinedValues;
                 copy.Active = piece.Active;
-                copy.Square = boardClone.GetSquare(piece.Square);
-                if ( copy.Active ) boardClone.GetSquare(copy.Square).Piece = copy;
-                boardClone.ActivePieces.Add(copy);
-                copy.Board = boardClone;
+                copy.Square = boardTarget.GetSquare(piece.Square);
+                if ( copy.Active ) boardTarget.GetSquare(copy.Square).Piece = copy;
+                boardTarget.ActivePieces.Add(copy);
+                copy.Board = boardTarget;
             });
-
-
-            return boardClone;
+            */
         }
+
 
         public bool[][][,] GetAsBoolArray() {
             bool[][][,] BoolArray = new bool[2][][,];
@@ -338,9 +331,11 @@ namespace Chess.Classes {
         }
         public string GetDataString() => Convert.ToBase64String(GetByteArray());
         */
-        public byte[] PositionalByteArray {
+        public byte[] BoardDataByteArray {
             get {
-                return AllPieces.Select(i => i.PositionData).ToArray();
+                var output = new byte[AllPieces.Length];
+                for ( int i = 0; i < AllPieces.Length; i++ ) output[i] = AllPieces[i].PositionData;
+                return output;
             }
             set {
                 for (int i=0; i<value.Length; i++) {
@@ -349,14 +344,16 @@ namespace Chess.Classes {
             }
         }
 
-        public string PositionalDataString {
+        public string BoardDataString {
             get {
-                return Convert.ToBase64String(PositionalByteArray);
+                return Convert.ToBase64String(BoardDataByteArray);
             }
             set {
-                PositionalByteArray = Convert.FromBase64String(value);
+                BoardDataByteArray = Convert.FromBase64String(value);
             }
         }
+
+        
 
 
         public override string ToString() {

@@ -46,7 +46,8 @@ namespace Chess.Classes.Pieces {
         bool Active { get; set; }
         Square Square { get; set; }
         IPiece NewCopy();
-
+        void CopyInto(IPiece piece);
+        void Move(int x, int y);
         Board Board { get; set; }
     }
 
@@ -62,7 +63,6 @@ namespace Chess.Classes.Pieces {
             tmpImg.Margin = _thickness;
             return tmpImg;
         }
-
         public byte GetByteData() {
             return (byte)((byte)GetPieceType() | (byte)GetColor());
         }
@@ -73,9 +73,17 @@ namespace Chess.Classes.Pieces {
             }
             set {
                 if ( value == 0xFF ) Square = null;
-                SetSquare(value % 8, value / 8);
+                else SetSquare(value % 8, value / 8);
             }
         }
+        public void Move(int x, int y) {
+            Board.GetSquare(x, y).SetPiece((IPiece)this);
+        }
+        public void CopyInto(IPiece targetPiece) {
+            targetPiece.Move(Square.XPos, Square.YPos);
+            targetPiece.SetHasMoved(GetHasMoved());
+        }
+
 
         public Board Board { get; set; }
         public bool Active { get; set; } // Change get to [return Square != null], remove set
